@@ -2,8 +2,8 @@
 
 ## Context
 
-PET imaging is a valuable tool to diagnose and track patients with multiple myelomas (advanced cancers with metastasis). See images below.
-The images show lesions as dark regions.
+PET imaging is a valuable tool to diagnose and track patients with multiple myelomas (advanced cancers with metastasis).
+PET images show lesions as dark regions.
 
 ## Goal
 
@@ -13,6 +13,3 @@ The goal of this project is to develop machine learning tools (*e.g.* SVMs or ra
 
 - Bibliographic study
 - Implement PET scans processing algorithms in Python to predict survival time
-
-
-![PET scans](http://jnm.snmjournals.org/content/53/7/1091/F6.large.jpg)
