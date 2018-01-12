@@ -80,7 +80,7 @@ def STAPLE(indim):
 
 	nbslides=inputImage.GetDepth()
 	print(nbslides)
-	tablep = np.zeros((nbslides,nbmethods))		# matrice regroupant les sensibilites de chaque methode pour chaque coupe
+	tablep = np.zeros((nbslides,nbmetho	ds))		# matrice regroupant les sensibilites de chaque methode pour chaque coupe
 	tableq = np.zeros((nbslides,nbmethods))		# matrice regroupant les specificites de chaque methode pour chaque coupe
 
 	# Matrice regroupant tous les voxels de toutes les methodes de segmentation
