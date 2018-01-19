@@ -7,7 +7,7 @@
 # ### Un pipe mimimaliste
 # L'objectif de ce notebook est de mettre en place un pipe qui prenne en input un jeu de données patient avec chacun une pile de dicom et un filtre assoscié afin d'en extraire les features.
 
-# In[3]:
+# In[37]:
 
 
 import numpy as np
@@ -22,9 +22,10 @@ from skimage import io
 import SimpleITK as sitk
 import collections
 import re
+from skimage.external import tifffile
 
 
-# In[84]:
+# In[2]:
 
 
 PATH_TO_DATA  = "../../data/"
@@ -92,10 +93,16 @@ PATH_TO_DATA  = "../../data/"
 # ### Fonction dcmToSimpleITK
 # Pour traiter une pile de dicom et en donner une image simpleITK qui peut être utilisé par pyradiomics
 # 
-# ### Fonction majorityVoteMask
-# A partir d'un répertoire contenant plusieurs filtres, retourne le filtre sélectionné par la méthode du vote majoritaire, ce masque est retournée sous forme d'une image simpleITK qui peut être utilisé par pyradiomics
+# ### Fonction majorityVote
+# A partir de 3 masques au format .tif, retourne le filtre sélectionné par la méthode du vote majoritaire, ce masque est retournée sous forme d'une image simpleITK qui peut être utilisé par pyradiomics
+# 
+# ### Fonction getTifMasks
+# A partir d'un dossier lésion, la fonction getTifMasks renvoie les 3 masques 40, 2.5 et kmean au format .tif 
+# 
+# ### Fonction makeTifFromPile 
+# A partir d'une pile de masque, la fonction makeTifFromPile créer un masque au format.tif et le place dans le dossier racine de la lésion. Cette fonction prend en entrée le chemin vers la pile de fichiers à convertir en .tif. makeTifFromPile retourne le chemin vers le nouveau masque au format tif créé
 
-# In[118]:
+# In[3]:
 
 
 def dcmToSimpleITK(dcmDirectory):
@@ -111,12 +118,145 @@ def dcmToSimpleITK(dcmDirectory):
     
 
 
-# In[126]:
+# ### getTifMasks implementation 
+# 
+# Cas nominal : les filtres 2.5 et 40 sont sous formes de piles. Dans les cas où ils ont été retravaillé il faut prendre les filtres  .tiff
+# 
+# 
+# #1 high level implementation
+# 
+# ```
+#     Ouverture du dossier lésion:
+#     Si le filtre 2.5 et/ou 40 est en .tif sélectionner ces tifs
+#     Sinon ouvrir les dossiers 40 et 2.5
+#         convertir les piles en .tif
+#     retourner les 3 masques en .tif
+#     
+# ```
+# #2 Fonction intermediaire getTifMasks
+# ```
+# Ouverture du dossier lesion:
+# 
+# Si il existe un fichier 25.tif:
+#     assigner le chemin vers ce fichier à la variable pathToMask25Tif
+# Sinon ouvrir le dossier 25:
+#     construire .tif à partir de la pile
+#     assigner le chemin vers ce fichier à la variable pathToMask25Tif
+#     
+# Si il existe un fichier 40.tif:
+#     assigner le chemin vers ce fichier à la variable pathToMask40Tif
+# Sinon ouvrir les dossiers 40 
+#     construire .tif à partir de la pile
+#     assigner le chemin vers ce fichier à la variable pathToMask40Tif
+#     
+# retourner les 3 masques en .tif
+# ```
+
+# In[4]:
 
 
-def majorityVoteMask(masksPath):
+def getTifMasks(masksPath):
+    '''Return path toward the KMean, 40 and 2.5 mask respectively in this order'''
+    list_files = [file for file in os.listdir(masksPath) if os.path.isfile(os.path.join(masksPath, file))]
+    mask40Name = '40.tif' # /!\ Noms des filtres à valdier avec Thomas 
+    mask25Name = '25.tif' #--> s'appellent-ils comme ça si ils ont été remodifié ?
+    pathToKmeanMask = masksPath + '/kmean.tif'
+    if mask40Name in list_files:
+        pathTo40Mask = masksPath + '/' + mask40Name
+    else:
+        pathTo40Mask = makeTifFromPile(masksPath + '/40')
+    if mask25Name in list_files:
+        pathTo25Mask = masksPath + '/' + mask25Name
+    else:
+        pathTo25Mask = makeTifFromPile(masksPath + '/2.5')
+    return(pathToKmeanMask, pathTo40Mask, pathTo25Mask)
+
+
+# In[6]:
+
+
+def getWords(text):
+    return re.compile('\w+').findall(text)
+
+
+# In[83]:
+
+
+def makeTifFromPile(pathToPile):
+    '''Takes an absoulte path containing a pile of masks, compute the resulting .tif mask and output the path to the created .tif mask '''
+    list_pileFiles = []
+    for dirpath,dirnames,fileNames in os.walk(pathToPile):
+        for file in fileNames:
+            list_pileFiles.append(os.path.join(dirpath,file))
+    list_pileFilesAsArray = []
+    
+    first_file = list_pileFiles[0]
+    #get the shape of the image
+    with open(first_file, mode='r', encoding='utf-8') as file:
+        file.readline()#first line junk data
+        shapeLocalMask = getWords(file.readline()) #secondline is shape of the dcm pile
+        xShape = int(shapeLocalMask[0])
+        yShape = int(shapeLocalMask[1])
+        mask_size = (xShape, yShape)
+    
+    num_file = len(list_pileFiles)
+    mask_array = np.zeros((num_file, xShape, yShape))
+    fileIndex = 0
+    for pileFile in list_pileFiles:
+        with open(pileFile, mode='r', encoding='utf-8') as file:
+            file.readline() #junk line
+            file.readline() #secondline is shape of the dcm pile
+            file.readline() # 3 lines of junk data
+            for rowIndex in range(xShape):
+                for colIndex in range(yShape):
+                    val = file.read(1)
+                    while (val!='0' and val!='1'):
+                        val = file.read(1)
+                    mask_array[fileIndex,rowIndex, colIndex] = int(val)
+            fileIndex = fileIndex + 1
+
+    pathToLesion = os.path.abspath(os.path.join(pathToPile, os.pardir))
+
+    if('2.5' in pathToPile):
+        pathToTifMask = pathToLesion + '/25.tif'
+    if('40' in pathToPile):
+        pathToTifMask = pathToLesion + '/40.tif'
+        
+    tifffile.imsave(pathToTifMask, mask_array)
+    return pathToTifMask
+
+
+# In[86]:
+
+
+maskKmean = tifffile.imread(PATH_TO_DATA + '001-026/l2/kmean.tif')
+mask40 = tifffile.imread(PATH_TO_DATA + '001-026/l2/40.tif')
+
+
+# In[87]:
+
+
+print('Kmean : ',maskKmean.shape,' \n40 : ', mask40.shape)
+
+
+# In[6]:
+
+
+masksPath = PATH_TO_DATA + "001-026/l2"
+getTifMasks(masksPath)
+
+
+# ### majorityVote implementation
+# 
+# Le calcul du mask résultant par vote_maj se fait sur des fichiers en .tif
+
+# In[4]:
+
+
+def majorityVote(masksPath):
     '''Compute the average mask based on the majority vote method from different masks from a lesion'''
     # CODE to build --> in a first instance i only use the kmean filter!
+    
     mask_image = io.imread(masksPath + "/kmean.tif").T
     sITK_mask = sitk.GetImageFromArray(mask_image)
     return(sITK_mask)
@@ -124,7 +264,7 @@ def majorityVoteMask(masksPath):
 
 # ### Définition des objets Patient et Lesion
 
-# In[120]:
+# In[5]:
 
 
 class Patient:
@@ -138,7 +278,7 @@ class Patient:
         
 
 
-# In[159]:
+# In[7]:
 
 
 class Lesion:
@@ -146,7 +286,7 @@ class Lesion:
     def __init__(self, ref, masksPath, list_features=[]):
         '''Provide ref number as string "lx", where x is the number of the lesion, masksPath is the path to the folder conatining the masks'''
         self.ref = ref
-        self.mask = majorityVoteMask(masksPath)
+        self.mask = majorityVote(masksPath)
         self.list_features = list_features #la liste des features à récupérer sera à définir avec Thomas
 
 
