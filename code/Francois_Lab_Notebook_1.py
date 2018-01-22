@@ -7,7 +7,7 @@
 # ### Un pipe mimimaliste
 # L'objectif de ce notebook est de mettre en place un pipe qui prenne en input un jeu de données patient avec chacun une pile de dicom et un filtre assoscié afin d'en extraire les features.
 
-# In[37]:
+# In[ ]:
 
 
 import numpy as np
@@ -25,10 +25,10 @@ import re
 from skimage.external import tifffile
 
 
-# In[2]:
+# In[ ]:
 
 
-PATH_TO_DATA  = "../../data/"
+PATH_TO_DATA  = "C:/Users/mathi_000/jupyter/Projet/data/"
 
 
 # Structure du dossier data :
@@ -102,7 +102,7 @@ PATH_TO_DATA  = "../../data/"
 # ### Fonction makeTifFromPile 
 # A partir d'une pile de masque, la fonction makeTifFromPile créer un masque au format.tif et le place dans le dossier racine de la lésion. Cette fonction prend en entrée le chemin vers la pile de fichiers à convertir en .tif. makeTifFromPile retourne le chemin vers le nouveau masque au format tif créé
 
-# In[3]:
+# In[ ]:
 
 
 def dcmToSimpleITK(dcmDirectory):
@@ -152,7 +152,7 @@ def dcmToSimpleITK(dcmDirectory):
 # retourner les 3 masques en .tif
 # ```
 
-# In[4]:
+# In[ ]:
 
 
 def getTifMasks(masksPath):
@@ -162,24 +162,27 @@ def getTifMasks(masksPath):
     mask25Name = '25.tif' #--> s'appellent-ils comme ça si ils ont été remodifié ?
     pathToKmeanMask = masksPath + '/kmean.tif'
     if mask40Name in list_files:
-        pathTo40Mask = masksPath + '/' + mask40Name
+        #pathTo40Mask = masksPath + '/' + mask40Name
+        pathTo40Mask = os.path.join(masksPath, mask40Name)
+        print(pathTo40Mask)
     else:
-        pathTo40Mask = makeTifFromPile(masksPath + '/40')
+        pathTo40Mask = makeTifFromPile(os.path.join(masksPath, "40"))
     if mask25Name in list_files:
-        pathTo25Mask = masksPath + '/' + mask25Name
+        #pathTo25Mask = masksPath + '/' + mask25Name
+        pathTo25Mask = os.path.join(masksPath, mask25Name)
     else:
-        pathTo25Mask = makeTifFromPile(masksPath + '/2.5')
+        pathTo25Mask = makeTifFromPile(os.path.join(masksPath, '2.5'))
     return(pathToKmeanMask, pathTo40Mask, pathTo25Mask)
 
 
-# In[6]:
+# In[ ]:
 
 
 def getWords(text):
     return re.compile('\w+').findall(text)
 
 
-# In[83]:
+# In[ ]:
 
 
 def makeTifFromPile(pathToPile):
@@ -201,7 +204,7 @@ def makeTifFromPile(pathToPile):
     
     num_file = len(list_pileFiles)
     mask_array = np.zeros((num_file, xShape, yShape))
-    fileIndex = 0
+    fileIndex = num_file-1
     for pileFile in list_pileFiles:
         with open(pileFile, mode='r', encoding='utf-8') as file:
             file.readline() #junk line
@@ -213,58 +216,94 @@ def makeTifFromPile(pathToPile):
                     while (val!='0' and val!='1'):
                         val = file.read(1)
                     mask_array[fileIndex,rowIndex, colIndex] = int(val)
-            fileIndex = fileIndex + 1
+            fileIndex = fileIndex - 1
 
     pathToLesion = os.path.abspath(os.path.join(pathToPile, os.pardir))
 
     if('2.5' in pathToPile):
-        pathToTifMask = pathToLesion + '/25.tif'
+        #pathToTifMask = pathToLesion + '/25.tif'
+        pathToTifMask = os.path.join(pathToLesion,'25.tif')
     if('40' in pathToPile):
-        pathToTifMask = pathToLesion + '/40.tif'
+        #pathToTifMask = pathToLesion + '/40.tif'
+        pathToTifMask = os.path.join(pathToLesion, '40.tif')
         
     tifffile.imsave(pathToTifMask, mask_array)
     return pathToTifMask
 
 
-# In[86]:
-
-
-maskKmean = tifffile.imread(PATH_TO_DATA + '001-026/l2/kmean.tif')
-mask40 = tifffile.imread(PATH_TO_DATA + '001-026/l2/40.tif')
-
-
-# In[87]:
-
-
-print('Kmean : ',maskKmean.shape,' \n40 : ', mask40.shape)
-
-
-# In[6]:
+# In[ ]:
 
 
 masksPath = PATH_TO_DATA + "001-026/l2"
 getTifMasks(masksPath)
 
 
+# In[ ]:
+
+
+maskKmean = tifffile.imread(PATH_TO_DATA + '001-026/l2/kmean.tif')
+mask40 = tifffile.imread(PATH_TO_DATA + '001-026/l2/40.tif')
+
+
+# In[ ]:
+
+
+print('Kmean : ',maskKmean.shape,' \n40 : ', mask40.shape)
+
+
 # ### majorityVote implementation
 # 
 # Le calcul du mask résultant par vote_maj se fait sur des fichiers en .tif
 
-# In[4]:
+# In[ ]:
 
 
 def majorityVote(masksPath):
     '''Compute the average mask based on the majority vote method from different masks from a lesion'''
     # CODE to build --> in a first instance i only use the kmean filter!
     
-    mask_image = io.imread(masksPath + "/kmean.tif").T
-    sITK_mask = sitk.GetImageFromArray(mask_image)
-    return(sITK_mask)
+    # Import des 3 masques tif
+    (pathToKmeanMask, pathTo40Mask, pathTo25Mask) = getTifMasks(masksPath)
+    
+    mkmean = io.imread(pathToKmeanMask).T
+    m25 = io.imread(pathTo40Mask).T
+    m40 = io.imread(pathTo25Mask).T
+    
+    # Paramètres
+    ACCEPT = 0.45  # seuil d'acceptation pour que le voxel appartienne à la lésion ou au fond
+    nbmethods = 3  # Nombre de methodes (40%, 2.5 et kmean)
+    volVoxel = 4*4*2   # volume d'un voxel
+    
+    # Dimensions
+    imageDims=mkmean.shape
+    w=imageDims[0]   # largeur
+    h=imageDims[1]  # hauteur
+    d=imageDims[2]  # profondeur
+    m=w*h*d    # nombre de voxels par image
+    
+    # Image binaire segmentée selon vote majoritaire
+    mMajority = np.zeros(imageDims)
+    
+    for x in range(0,w):      # parcourt des lignes
+        for y in range(0,h):    # parcourt des colonnes
+            for z in range(0,d):    # parcourt profondeur
+                somme=0
+                somme = mkmean[x,y,z] + m25[x,y,z] + m40[x,y,z]
+
+                if ( float(somme)/nbmethods > ACCEPT ) : 
+                       mMajority[x,y,z] = 1     # Ajout voxel dans image de sortie
+
+    sITK_mask = sitk.GetImageFromArray(mMajority)
+    
+    majorityTiffPath = os.path.join(masksPath, "majority.tif")
+    tifffile.imsave(majorityTiffPath, mMajority)
+    
+    return sITK_mask
 
 
 # ### Définition des objets Patient et Lesion
 
-# In[5]:
+# In[ ]:
 
 
 class Patient:
@@ -273,24 +312,24 @@ class Patient:
         '''Provide ref number of the patient as a string "xxx-xxx", image must be simpleITK'''
         self.ref = ref
         self.list_lesions = list_lesions
-        dcmDirectory = PATH_TO_DATA + ref + "/dcm/"
+        dcmDirectory = os.path.join(PATH_TO_DATA, ref, "dcm")
         self.image = dcmToSimpleITK(dcmDirectory)
         
 
 
-# In[7]:
+# In[ ]:
 
 
 class Lesion:
     
-    def __init__(self, ref, masksPath, list_features=[]):
+    def __init__(self, ref, masksPath):
         '''Provide ref number as string "lx", where x is the number of the lesion, masksPath is the path to the folder conatining the masks'''
         self.ref = ref
         self.mask = majorityVote(masksPath)
-        self.list_features = list_features #la liste des features à récupérer sera à définir avec Thomas
+        self.dico_features = {} #la liste des features à récupérer sera à définir avec Thomas
 
 
-# In[169]:
+# In[ ]:
 
 
 #test
@@ -300,14 +339,32 @@ patient1.ref
 patient1.image
 print(patient1.image)
 
-l1 = Lesion('l1')
-print("Lesion %s" % l1.ref)
+# l1 = Lesion('l1')
+# print("Lesion %s" % l1.ref)
+
+
+# ### Fonction extraction des features pour une lésion
+
+# In[ ]:
+
+
+def setFeatures(dico_features, image, mask):
+    R = radiomics.glcm.RadiomicsGLCM(image, mask)
+    dico_features["Autocorrelation"] = R.getAutocorrelationFeatureValue()
+    dico_features["ClusterProminence"] = R.getClusterProminenceFeatureValue()
+    dico_features["ClusterShade"] = R.getClusterShadeFeatureValue()
+    dico_features["Contrast"] = R.getContrastFeatureValue()
+    dico_features["Correlation"] = R.getCorrelationFeatureValue()
+    dico_features["DifferenceEntropy"] = R.getDifferenceEntropyFeatureValue()
+    dico_features["DifferenceVariance"] = R.getDifferenceVarianceFeatureValue()
+    
+    return dico_features
 
 
 # ## Pipeline pour l'extraction automatisée de features
 # A partir d'un dossier de patients suivant une architecture standardisée
 
-# In[170]:
+# In[ ]:
 
 
 list_patients = []
@@ -319,34 +376,22 @@ for refPatient in os.listdir(PATH_TO_DATA):
     for directoryName in os.listdir(os.path.join(PATH_TO_DATA, patient.ref)):
         if directoryName != 'dcm' and directoryName != []:
             print("Processing lesion %s ..." % directoryName)
-            masksPath = PATH_TO_DATA + refPatient + '/' + directoryName
+            masksPath = os.path.join(PATH_TO_DATA, refPatient, directoryName)
             lesion = Lesion(directoryName, masksPath)
             patient.list_lesions.append(lesion)
-            lesion.list_features
-            
-            #Extraction des features
-            R = radiomics.featureextractor.RadiomicsFeaturesExtractor()
-            R.enableAllFeatures()
-            #print("Features name : ", R.getFeatureClassNames())
-            R.getFeatureNames('glcm')
-            glcm = radiomics.glcm.RadiomicsGLCM(patient.image, lesion.mask)
-            lesion.list_features.append(glcm)
+
+            lesion.dico_features = setFeatures(lesion.dico_features, patient.image, lesion.mask)
             
 
 
 # _NB_  : Je suppose un bug sur la lésion l1 du patient 001-026, certaines valeurs du masque doivent être incohérentes car tous les autres masques fonctionnnent. Pour mes tests, j'ai déplacé cette data dans un donnée corrupted_data
 
-# In[171]:
+# In[ ]:
 
 
 for patient in list_patients:
-    print("Patient %s" % patient.ref)
     for lesion in patient.list_lesions:
-        print('lesion %s' % lesion.ref)
-        print('Autocorrelation : %f' % lesion.list_features[0].getAutocorrelationFeatureValue())
-    print('\n')
-    
+        print(patient.ref)
+        print(lesion.ref)
+        print(lesion.dico_features)
 
-
-# #### Création du masque
-#  Attention aux dimensions, être sûr de bien reconnaître l'indice des axes x, y, z.
