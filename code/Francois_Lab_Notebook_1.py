@@ -7,7 +7,7 @@
 # ### Un pipe mimimaliste
 # L'objectif de ce notebook est de mettre en place un pipe qui prenne en input un jeu de données patient avec chacun une pile de dicom et un filtre assoscié afin d'en extraire les features.
 
-# In[37]:
+# In[1]:
 
 
 import numpy as np
@@ -152,7 +152,7 @@ def dcmToSimpleITK(dcmDirectory):
 # retourner les 3 masques en .tif
 # ```
 
-# In[4]:
+# In[18]:
 
 
 def getTifMasks(masksPath):
@@ -162,24 +162,26 @@ def getTifMasks(masksPath):
     mask25Name = '25.tif' #--> s'appellent-ils comme ça si ils ont été remodifié ?
     pathToKmeanMask = masksPath + '/kmean.tif'
     if mask40Name in list_files:
-        pathTo40Mask = masksPath + '/' + mask40Name
+        #pathTo40Mask = masksPath + '/' + mask40Name
+        pathTo40Mask = os.path.join(masksPath, mask40Name)
     else:
-        pathTo40Mask = makeTifFromPile(masksPath + '/40')
+        pathTo40Mask = makeTifFromPile(masksPath + '40')
     if mask25Name in list_files:
-        pathTo25Mask = masksPath + '/' + mask25Name
+        #pathTo25Mask = masksPath + '/' + mask25Name
+        pathTo25Mask = os.path.join(masksPath, mask25Name)
     else:
-        pathTo25Mask = makeTifFromPile(masksPath + '/2.5')
+        pathTo25Mask = makeTifFromPile(masksPath + '2.5')
     return(pathToKmeanMask, pathTo40Mask, pathTo25Mask)
 
 
-# In[6]:
+# In[5]:
 
 
 def getWords(text):
     return re.compile('\w+').findall(text)
 
 
-# In[83]:
+# In[19]:
 
 
 def makeTifFromPile(pathToPile):
@@ -218,28 +220,30 @@ def makeTifFromPile(pathToPile):
     pathToLesion = os.path.abspath(os.path.join(pathToPile, os.pardir))
 
     if('2.5' in pathToPile):
-        pathToTifMask = pathToLesion + '/25.tif'
+        #pathToTifMask = pathToLesion + '/25.tif'
+        pathToTifMask = os.path.join(pathToLesion,'25.tif')
     if('40' in pathToPile):
-        pathToTifMask = pathToLesion + '/40.tif'
+        #pathToTifMask = pathToLesion + '/40.tif'
+        pathToTifMask = os.path.join(pathToLesion, '40.tif')
         
     tifffile.imsave(pathToTifMask, mask_array)
     return pathToTifMask
 
 
-# In[86]:
+# In[21]:
 
 
 maskKmean = tifffile.imread(PATH_TO_DATA + '001-026/l2/kmean.tif')
 mask40 = tifffile.imread(PATH_TO_DATA + '001-026/l2/40.tif')
 
 
-# In[87]:
+# In[8]:
 
 
 print('Kmean : ',maskKmean.shape,' \n40 : ', mask40.shape)
 
 
-# In[6]:
+# In[20]:
 
 
 masksPath = PATH_TO_DATA + "001-026/l2"
@@ -250,7 +254,7 @@ getTifMasks(masksPath)
 # 
 # Le calcul du mask résultant par vote_maj se fait sur des fichiers en .tif
 
-# In[4]:
+# In[10]:
 
 
 def majorityVote(masksPath):
@@ -264,7 +268,7 @@ def majorityVote(masksPath):
 
 # ### Définition des objets Patient et Lesion
 
-# In[5]:
+# In[11]:
 
 
 class Patient:
@@ -278,7 +282,7 @@ class Patient:
         
 
 
-# In[7]:
+# In[12]:
 
 
 class Lesion:
@@ -290,7 +294,7 @@ class Lesion:
         self.list_features = list_features #la liste des features à récupérer sera à définir avec Thomas
 
 
-# In[169]:
+# In[13]:
 
 
 #test
@@ -307,7 +311,7 @@ print("Lesion %s" % l1.ref)
 # ## Pipeline pour l'extraction automatisée de features
 # A partir d'un dossier de patients suivant une architecture standardisée
 
-# In[170]:
+# In[14]:
 
 
 list_patients = []
@@ -336,7 +340,7 @@ for refPatient in os.listdir(PATH_TO_DATA):
 
 # _NB_  : Je suppose un bug sur la lésion l1 du patient 001-026, certaines valeurs du masque doivent être incohérentes car tous les autres masques fonctionnnent. Pour mes tests, j'ai déplacé cette data dans un donnée corrupted_data
 
-# In[171]:
+# In[15]:
 
 
 for patient in list_patients:
