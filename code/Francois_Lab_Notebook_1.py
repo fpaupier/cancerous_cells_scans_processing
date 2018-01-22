@@ -7,7 +7,7 @@
 # ### Un pipe mimimaliste
 # L'objectif de ce notebook est de mettre en place un pipe qui prenne en input un jeu de données patient avec chacun une pile de dicom et un filtre assoscié afin d'en extraire les features.
 
-# In[37]:
+# In[ ]:
 
 
 import numpy as np
@@ -25,10 +25,10 @@ import re
 from skimage.external import tifffile
 
 
-# In[2]:
+# In[ ]:
 
 
-PATH_TO_DATA  = "../../data/"
+PATH_TO_DATA  = "C:/Users/mathi_000/jupyter/Projet/data/"
 
 
 # Structure du dossier data :
@@ -102,7 +102,7 @@ PATH_TO_DATA  = "../../data/"
 # ### Fonction makeTifFromPile 
 # A partir d'une pile de masque, la fonction makeTifFromPile créer un masque au format.tif et le place dans le dossier racine de la lésion. Cette fonction prend en entrée le chemin vers la pile de fichiers à convertir en .tif. makeTifFromPile retourne le chemin vers le nouveau masque au format tif créé
 
-# In[3]:
+# In[ ]:
 
 
 def dcmToSimpleITK(dcmDirectory):
@@ -152,7 +152,7 @@ def dcmToSimpleITK(dcmDirectory):
 # retourner les 3 masques en .tif
 # ```
 
-# In[4]:
+# In[ ]:
 
 
 def getTifMasks(masksPath):
@@ -172,14 +172,14 @@ def getTifMasks(masksPath):
     return(pathToKmeanMask, pathTo40Mask, pathTo25Mask)
 
 
-# In[6]:
+# In[ ]:
 
 
 def getWords(text):
     return re.compile('\w+').findall(text)
 
 
-# In[83]:
+# In[ ]:
 
 
 def makeTifFromPile(pathToPile):
@@ -226,20 +226,20 @@ def makeTifFromPile(pathToPile):
     return pathToTifMask
 
 
-# In[86]:
+# In[ ]:
 
 
 maskKmean = tifffile.imread(PATH_TO_DATA + '001-026/l2/kmean.tif')
 mask40 = tifffile.imread(PATH_TO_DATA + '001-026/l2/40.tif')
 
 
-# In[87]:
+# In[ ]:
 
 
 print('Kmean : ',maskKmean.shape,' \n40 : ', mask40.shape)
 
 
-# In[6]:
+# In[ ]:
 
 
 masksPath = PATH_TO_DATA + "001-026/l2"
@@ -250,21 +250,53 @@ getTifMasks(masksPath)
 # 
 # Le calcul du mask résultant par vote_maj se fait sur des fichiers en .tif
 
-# In[4]:
+# In[ ]:
 
 
 def majorityVote(masksPath):
     '''Compute the average mask based on the majority vote method from different masks from a lesion'''
     # CODE to build --> in a first instance i only use the kmean filter!
     
-    mask_image = io.imread(masksPath + "/kmean.tif").T
-    sITK_mask = sitk.GetImageFromArray(mask_image)
+    # Import des 3 masques tif
+    mkmean = io.imread(masksPath+"/kmean.tif").T
+    m25 = io.imread(masksPath+"/25.tif").T
+    m40 = io.imread(masksPath+"/40.tif").T
+    
+    # Paramètres
+    ACCEPT = 0.45  # seuil d'acceptation pour que le voxel appartienne à la lésion ou au fond
+    nbmethods = 3  # Nombre de methodes (40%, 2.5 et kmean)
+    volVoxel = 4*4*2   # volume d'un voxel
+    
+    # Dimensions
+    imageDims=mkmean.shape
+    w=imageDims[0]   # largeur
+    h=imageDims[1]  # hauteur
+    d=imageDims[2]  # profondeur
+    m=w*h*d    # nombre de voxels par image
+    
+    # Image binaire segmentée selon vote majoritaire
+    mMajority = np.zeros(imageDims)
+    
+    for x in range(0,w):      # parcourt des lignes
+        for y in range(0,h):    # parcourt des colonnes
+            for y in range(0,z):    # parcourt profondeur
+                somme=0
+                somme = mkmean[x,y,z] + m25[x,y,z] + m40[x,y,z]
+
+                if ( float(somme)/nbmethods > ACCEPT ) : 
+                       mMajority[x,y,z] = 1     # Ajout voxel dans image de sortie
+
+    sITK_mask = sitk.GetImageFromArray(mMajority)
+    
+    majorityTiffPath = os.path.join(masksPath, "majority.tif")
+    tifffile.imsave(majorityTiffPath, mMajority)
+    
     return(sITK_mask)
 
 
 # ### Définition des objets Patient et Lesion
 
-# In[5]:
+# In[ ]:
 
 
 class Patient:
@@ -278,7 +310,7 @@ class Patient:
         
 
 
-# In[7]:
+# In[ ]:
 
 
 class Lesion:
@@ -290,7 +322,7 @@ class Lesion:
         self.list_features = list_features #la liste des features à récupérer sera à définir avec Thomas
 
 
-# In[169]:
+# In[ ]:
 
 
 #test
@@ -300,14 +332,14 @@ patient1.ref
 patient1.image
 print(patient1.image)
 
-l1 = Lesion('l1')
-print("Lesion %s" % l1.ref)
+# l1 = Lesion('l1')
+# print("Lesion %s" % l1.ref)
 
 
 # ## Pipeline pour l'extraction automatisée de features
 # A partir d'un dossier de patients suivant une architecture standardisée
 
-# In[170]:
+# In[ ]:
 
 
 list_patients = []
@@ -336,7 +368,7 @@ for refPatient in os.listdir(PATH_TO_DATA):
 
 # _NB_  : Je suppose un bug sur la lésion l1 du patient 001-026, certaines valeurs du masque doivent être incohérentes car tous les autres masques fonctionnnent. Pour mes tests, j'ai déplacé cette data dans un donnée corrupted_data
 
-# In[171]:
+# In[ ]:
 
 
 for patient in list_patients:
