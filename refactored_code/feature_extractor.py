@@ -2,7 +2,7 @@
 
 ###
 # feature_extractor.py -
-# This file implements the extraction pipeline to obtain the expected features from a standardized dataset of patients
+# This file implements the extraction pipeline to obtain the expected features from a standardized data set of patients
 # and lesions.
 # This script outputs a csv file containing the computed feature per patient.
 #
@@ -34,7 +34,8 @@ from Patient import Patient
 def run_extraction_pipe(PATH_TO_DATA, PATH_TO_FEATURES_CSV, PATH_TO_EXTRACTION_PARAMS):
     '''Pipe function takes the path to the standardized patients dataset and the path to the csv containing the
     extracted features. If no CSV path is provided a CSV file will be created in the parent directory of the patient
-    dataset.'''
+    data set.
+    Warning : If a CSV with the same name already exists it will be written over'''
 
     print("Path to Data : %s \nPath to CSV feature : %s" % (PATH_TO_DATA, PATH_TO_FEATURES_CSV))
     list_patients = []
@@ -58,7 +59,7 @@ def extract_features(PATH_TO_EXTRACTION_PARAMS, lesion, image):
      information about extraction parameters. Extracted features are recorded in the dict_features of the
      lesion object'''
     extractor = featureextractor.RadiomicsFeaturesExtractor(PATH_TO_EXTRACTION_PARAMS)
-    extractor.loadParams(paramsFile=PATH_TO_EXTRACTION_PARAMS)
+    extractor.loadParams(paramsFile=PATH_TO_EXTRACTION_PARAMS) # Not sure this line does anything - may be a repetition
     classNames = extractor.getFeatureClassNames()  # Not sure this line does anything
     features = extractor.execute(image, lesion.mask)
     for key in features:

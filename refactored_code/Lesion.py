@@ -81,6 +81,7 @@ def makeTifFromPile(pathToPile):
     if '40' in pathToPile:
         pathToTifMask = os.path.join(pathToLesion, '40.tif')
 
+    # Warning : check why the size (in bytes) of the saved mask is up to 10 times the size of the 2.5 or 40 masks
     tifffile.imsave(pathToTifMask, mask_array)
     return pathToTifMask
 
