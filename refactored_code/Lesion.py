@@ -38,7 +38,7 @@ class Lesion:
 # --------------------------
 
 def getWords(text):
-    '''From string, get the words separated by a space and return it as a list of strings'''
+    '''From a text input as a string, get the words separated by a space and return it as a list of strings'''
     return re.compile('\w+').findall(text)
 
 
@@ -48,7 +48,8 @@ def makeTifFromPile(pathToPile):
     list_pileFiles = []
     for dirpath, dirnames, fileNames in os.walk(pathToPile):
         for fileName in fileNames:
-            list_pileFiles.append(os.path.join(dirpath, fileName))
+            if not fileName.startswith('.'):
+                list_pileFiles.append(os.path.join(dirpath, fileName))
 
     first_file = list_pileFiles[0]
     # get the shape of the image
@@ -64,18 +65,19 @@ def makeTifFromPile(pathToPile):
     for pileFile in list_pileFiles:
         with open(pileFile, mode='r', encoding='utf-8') as tifFile:
             tifFile.readline()  # junk line
-            tifFile.readline()  # secondline is shape of the dcm pile
-            tifFile.readline()  # 3 lines of junk data
+            tifFile.readline()  # second line is shape of the dcm pile
+            tifFile.readline()  # 3 line is junk data
             for rowIndex in range(xShape):
                 for colIndex in range(yShape):
                     val = tifFile.read(1)
                     while val != '0' and val != '1':
                         val = tifFile.read(1)
                     mask_array[fileIndex, rowIndex, colIndex] = int(val)
-            fileIndex = fileIndex - 1
+            fileIndex = fileIndex - 1  # Start with last file in the pile to construct the mask in correct order
 
     pathToLesion = os.path.abspath(os.path.join(pathToPile, os.pardir))
 
+    pathToTifMask = os.path.join(pathToLesion, '_non-standard-mask.tif') # In case not 2.5 or 40 mask (non nominal path)
     if '2.5' in pathToPile:
         pathToTifMask = os.path.join(pathToLesion, '25.tif')
     if '40' in pathToPile:
@@ -91,7 +93,7 @@ def getTifMasks(masksPath):
     list_files = [file for file in os.listdir(masksPath) if os.path.isfile(os.path.join(masksPath, file))]
     mask40Name = '40.tif'
     mask25Name = '25.tif'
-    pathToKmeanMask = masksPath + '/kmean.tif'
+    pathToKmeanMask = os.path.join(masksPath, "kmean.tif")
     if mask40Name in list_files:
         pathTo40Mask = os.path.join(masksPath, mask40Name)
         print(pathTo40Mask)
@@ -105,7 +107,6 @@ def getTifMasks(masksPath):
 
 
 def majorityVote(masksPath):
-    print(masksPath)
     '''Compute the average mask based on the majority vote method for a lesion. Masks used to compute resulting masks 
     are Kmean mask, 2.5 mask and 40% mask. The masks should be in the same path. The resulting tif mask is saved under 
     the masksPath directory under the name 'majority.tif' '''

@@ -172,10 +172,11 @@ def initializePatientImage(dcmDirectory):
 
     # If the slice is already in SUV we assume all the dcm pile for a same patient is in SUV, otherwise we convert
     if isSliceUnitSUV(refDicomSlice):
-        print("Patient's voxels value are already in SUV. No conversion needed.")
+        print("   Patient's voxels value are already in SUV. No conversion needed.")
         return rescaledImage
 
     else:
-        print("Patient's voxels value are not in SUV.  Converting the patient's voxels in SUV ...")
+        print("   Patient's voxels value are not in SUV.  Converting the patient's voxels in SUV ...")
         image3D = convertToSUV(dcmDirectory, rescaledImage)
+        print("   Conversion to SUV done")
         return image3D

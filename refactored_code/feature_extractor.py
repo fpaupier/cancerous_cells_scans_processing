@@ -46,7 +46,7 @@ def run_extraction_pipe(PATH_TO_DATA, PATH_TO_FEATURES_CSV, PATH_TO_EXTRACTION_P
             list_patients.append(patient)
             for directoryName in os.listdir(os.path.join(PATH_TO_DATA, patient.ref)):
                 if directoryName != 'dcm' and 'l' in directoryName:
-                    print("Processing lesion %s ..." % directoryName)
+                    print("   Processing lesion %s ..." % directoryName)
                     masksPath = os.path.join(PATH_TO_DATA, refPatient, directoryName)
                     lesion = Lesion(directoryName, masksPath)
                     patient.list_lesions.append(lesion)

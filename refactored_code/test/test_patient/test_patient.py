@@ -20,7 +20,6 @@ sample_patient_folder = os.path.join(dir_path, 'sample_data')
 sample_dicom_slice = os.path.join(sample_dicom_folder, 'A_sample.dcm')
 
 
-
 class TestPatient(object):
 
     def test_isSliceUnitSUV(self):
@@ -148,9 +147,7 @@ class TestPatient(object):
         # /!\
 
         # Instantiate a test patient
-        list_patients = []
         for refPatient in os.listdir(sample_patient_folder):
             if not refPatient.startswith('.'):
                 patient = Patient(refPatient, sample_patient_folder)
-
         pass
