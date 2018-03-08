@@ -27,8 +27,8 @@ import os
 import pandas as pd
 from radiomics import featureextractor
 
-from Lesion import Lesion
-from Patient import Patient
+from refactored_code.Lesion import Lesion
+from refactored_code.Patient import Patient
 
 
 def run_extraction_pipe(PATH_TO_DATA, PATH_TO_FEATURES_CSV, PATH_TO_EXTRACTION_PARAMS):
@@ -54,6 +54,7 @@ def run_extraction_pipe(PATH_TO_DATA, PATH_TO_FEATURES_CSV, PATH_TO_EXTRACTION_P
     patients_dataFrame = convert_patients_list_to_dataFrame(list_patients)
     patients_dataFrame.to_csv(PATH_TO_FEATURES_CSV, sep=',', encoding='utf-8')
 
+
 def extract_features(PATH_TO_EXTRACTION_PARAMS, lesion, image):
     '''Extract the features specified in the .yaml parameter file. Check radiomics extraction parameter for further
      information about extraction parameters. Extracted features are recorded in the dict_features of the
@@ -64,6 +65,7 @@ def extract_features(PATH_TO_EXTRACTION_PARAMS, lesion, image):
     features = extractor.execute(image, lesion.mask)
     for key in features:
         lesion.dict_features[key] = features[key]
+
 
 def convert_patients_list_to_dataFrame(list_patients):
     '''Take a patient list containing each patients' lesion and associated feature, output a panda data frame.

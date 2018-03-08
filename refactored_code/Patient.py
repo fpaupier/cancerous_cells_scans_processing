@@ -104,9 +104,63 @@ def convertToSUV(dcmDirectory, sITKImage):
     Warning 4: simple ITK image passed as input are assumed to have been rescaled properly with the matching rescale
     slope found in the dicom tag of the matching dicom file.'''
 
-    # WARNING : Code to rewrite : currently the output dcm files are integers values only
 
     # Get the pile of dcm slices
+    list_dcmFiles = []
+    for directory, subDirectory, list_dcmFileNames in os.walk(dcmDirectory):
+        for fileName in list_dcmFileNames:
+            if '.dcm' in fileName.lower():  # check whether file is a dicom
+                list_dcmFiles.append(os.path.join(directory, fileName))
+
+    # Choose the first slice to check for voxel unit
+    refDicomSlice = pydicom.dcmread(list_dcmFiles[0])
+
+    # Compute the suvFactor
+    manufacturer = refDicomSlice[0x00080070].value.lower()
+    manufacturerIsPhilips = "philips" in manufacturer
+
+    units = refDicomSlice[0x00541001].value.lower()
+    unitIsNotBqml = "bqml" not in units
+
+    if manufacturerIsPhilips and unitIsNotBqml:
+        suvFactor = float(refDicomSlice[0x70531000].value)
+
+    else:
+        # Get infos from the patient dcm tags
+        acquisitionHour = int(refDicomSlice[0x00080031].value[0:2])
+        acquisitionMinute = int(refDicomSlice[0x00080031].value[2:4])
+        injectionHour = int(refDicomSlice[0x00540016].value[0][0x00181072].value[0:2])
+        injectionMinute = int(refDicomSlice[0x00540016].value[0][0x00181072].value[2:4])
+
+        deltaHour = acquisitionHour - injectionHour
+        deltaMinute = acquisitionMinute - injectionMinute
+
+        if (deltaMinute < 0):
+            deltaMinute = 60 + deltaMinute
+            deltaHour = deltaHour - 1
+
+        decayFactor = np.exp(-np.log(2) * ((60 * deltaHour) + deltaMinute) / 109.8)
+
+        radioNuclideTotalDose = float(refDicomSlice[0x00540016].value[0][0x00181074].value)
+        correctedActivity = decayFactor * radioNuclideTotalDose
+
+        patientMass = float(refDicomSlice[0x00101030].value)
+        suvFactor = (patientMass * 1000) / correctedActivity
+
+    # All slices are multiplied per the same suv factor. We assume it's a constant for a patient
+    voxels = sitk.GetArrayFromImage(sITKImage).astype('float32')
+    SUVVoxels = suvFactor * voxels
+    SUVsITKImage = sitk.GetImageFromArray(SUVVoxels)
+
+    return SUVsITKImage
+
+
+def initializePatientImage(dcmDirectory):
+    """From a dicom directory, output the rescaled and converted to SUV simple ITK image used to compute features"""
+
+    # Compute the simple ITK image rescaled per the rescale slope
+    rescaledImage = dcmToSimpleITK(dcmDirectory)
+
     list_dcmFiles = []
     for directory, subDirectory, list_dcmFileNames in os.walk(dcmDirectory):
         for fileName in list_dcmFileNames:
@@ -119,57 +173,9 @@ def convertToSUV(dcmDirectory, sITKImage):
     # If the slice is already in SUV we assume all the dcm pile for a same patient is in SUV, otherwise we convert
     if isSliceUnitSUV(refDicomSlice):
         print("Patient's voxels value are already in SUV. No conversion needed.")
+        return rescaledImage
 
     else:
         print("Patient's voxels value are not in SUV.  Converting the patient's voxels in SUV ...")
-
-        # Compute the suvFactor
-        manufacturer = refDicomSlice[0x00080070].value.lower()
-        manufacturerIsPhilips = "philips" in manufacturer
-
-        units = refDicomSlice[0x00541001].value.lower()
-        unitIsNotBqml = "bqml" not in units
-
-        if manufacturerIsPhilips and unitIsNotBqml:
-            suvFactor = float(refDicomSlice[0x70531000].value)
-
-        else:
-            # Get infos from the patient dcm tags
-            acquisitionHour = int(refDicomSlice[0x00080031].value[0:2])
-            acquisitionMinute = int(refDicomSlice[0x00080031].value[2:4])
-            injectionHour = int(refDicomSlice[0x00540016].value[0][0x00181072].value[0:2])
-            injectionMinute = int(refDicomSlice[0x00540016].value[0][0x00181072].value[2:4])
-
-            deltaHour = acquisitionHour - injectionHour
-            deltaMinute = acquisitionMinute - injectionMinute
-
-            if (deltaMinute < 0):
-                deltaMinute = 60 + deltaMinute
-                deltaHour = deltaHour - 1
-
-            decayFactor = np.exp(-np.log(2) * ((60 * deltaHour) + deltaMinute) / 109.8)
-
-            radioNuclideTotalDose = float(refDicomSlice[0x00540016].value[0][0x00181074].value)
-            correctedActivity = decayFactor * radioNuclideTotalDose
-
-            patientMass = float(refDicomSlice[0x00101030].value)
-            suvFactor = (patientMass * 1000) / correctedActivity
-
-        # All slices are multiplied per the same suv factor. We assume it's a constant for a patient
-        voxels = sitk.GetArrayFromImage(sITKImage).astype('float32')
-        SUVVoxels = suvFactor * voxels
-        SUVsITKImage = sitk.GetImageFromArray(SUVVoxels)
-
-    return SUVsITKImage
-
-
-def initializePatientImage(dcmDirectory):
-    """From a dicom directory, output the rescaled and converted to SUV simple ITK image used to compute features"""
-
-    # Compute the simple ITK image rescaled per the rescale slope
-    rescaledImage = dcmToSimpleITK(dcmDirectory)
-
-    # Convert the image voxels to SUV value
-    image3D = convertToSUV(dcmDirectory, rescaledImage)
-
-    return image3D
+        image3D = convertToSUV(dcmDirectory, rescaledImage)
+        return image3D
