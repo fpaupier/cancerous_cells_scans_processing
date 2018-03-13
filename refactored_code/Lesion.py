@@ -17,6 +17,7 @@ import re
 from skimage.external import tifffile
 import SimpleITK as sitk
 from skimage import io
+import collections
 
 
 # --------------------------
@@ -30,7 +31,7 @@ class Lesion:
         containing the masks '''
         self.ref = ref
         self.mask = majorityVote(masksPath)
-        self.dict_features = {}  # list of features defined with Thomas
+        self.dict_features = collections.OrderedDict()  # Expected features are in the .yaml parameter file
 
 
 # --------------------------
@@ -96,7 +97,6 @@ def getTifMasks(masksPath):
     pathToKmeanMask = os.path.join(masksPath, "kmean.tif")
     if mask40Name in list_files:
         pathTo40Mask = os.path.join(masksPath, mask40Name)
-        print(pathTo40Mask)
     else:
         pathTo40Mask = makeTifFromPile(os.path.join(masksPath, "40"))
     if mask25Name in list_files:
@@ -128,7 +128,7 @@ def majorityVote(masksPath):
     mMajority = np.zeros(imageDims)
 
     sum_mask = m40 + m25 + mkmean
-    sum_mask /= nbMethods
+    sum_mask = np.divide(sum_mask, nbMethods)
     mMajority[sum_mask >= thresh] = 1  # Vectorized method
 
     sITK_mask = sitk.GetImageFromArray(mMajority)

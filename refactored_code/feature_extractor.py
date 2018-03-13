@@ -37,7 +37,8 @@ def run_extraction_pipe(PATH_TO_DATA, PATH_TO_FEATURES_CSV, PATH_TO_EXTRACTION_P
     data set.
     Warning : If a CSV with the same name already exists it will be written over'''
 
-    print("Path to Data : %s \nPath to CSV feature : %s" % (PATH_TO_DATA, PATH_TO_FEATURES_CSV))
+    print("Patients data are loaded from : %s \nFeatures values will be written at: %s"
+          % (PATH_TO_DATA, PATH_TO_FEATURES_CSV))
     list_patients = []
     for refPatient in os.listdir(PATH_TO_DATA):
         if not refPatient.startswith('.'):
@@ -60,9 +61,11 @@ def extract_features(PATH_TO_EXTRACTION_PARAMS, lesion, image):
      information about extraction parameters. Extracted features are recorded in the dict_features of the
      lesion object'''
     extractor = featureextractor.RadiomicsFeaturesExtractor(PATH_TO_EXTRACTION_PARAMS)
-    extractor.loadParams(paramsFile=PATH_TO_EXTRACTION_PARAMS) # Not sure this line does anything - may be a repetition
-    classNames = extractor.getFeatureClassNames()  # Not sure this line does anything
-    features = extractor.execute(image, lesion.mask)
+    features = extractor.computeFeatures(image, lesion.mask, imageTypeName='original')
+    # we specify imageTypeName='original' because the patient image has not been filtered or other kind of pre-process
+    # beforehand.
+
+    # Add the features specified in the parameter file in the lesion dictionary
     for key in features:
         lesion.dict_features[key] = features[key]
 
@@ -74,13 +77,17 @@ def convert_patients_list_to_dataFrame(list_patients):
     for patient in list_patients:
         for lesion in patient.list_lesions:
             serieIndex = patient.ref + " " + lesion.ref
-            localSerie = pd.Series(lesion.dict_features, index=serieIndex)
-            list_series.append(localSerie)
+            lesion.dict_features.update({"Index": serieIndex})
+            lesion.dict_features.move_to_end('Index', last=False)
+            list_series.append(lesion.dict_features)
     patients_dataFrame = pd.DataFrame(list_series)
     return patients_dataFrame
 
 
 if __name__ == '__main__':
+    # TO DO :
+    # Add command line argument to load the path to data and path to csv and path to extraction params
+    # such as --path_to_data --path_to_csv --path_to_extract-params
     PATH_TO_DATA = "/Users/pops/Documents/ecn/projet/MYELOME/data/"
     PATH_TO_FEATURES_CSV = "/Users/pops/Documents/ecn/projet/MYELOME/extracted_features.csv"
     PATH_TO_EXTRACTION_PARAMS = "/Users/pops/Documents/ecn/projet/petml/code/extractionParams.yaml"

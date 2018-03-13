@@ -25,10 +25,10 @@ import dicom_numpy
 
 class Patient:
 
-    def __init__(self, ref, PATH_TO_DATA, list_lesions=[]):
+    def __init__(self, ref, PATH_TO_DATA):
         '''Provide ref number of the patient as a string "xxx-xxx", image is simpleITK type'''
         self.ref = ref
-        self.list_lesions = list_lesions
+        self.list_lesions = []
         dcmDirectory = os.path.join(PATH_TO_DATA, ref, "dcm")
         self.image = initializePatientImage(dcmDirectory)
 
