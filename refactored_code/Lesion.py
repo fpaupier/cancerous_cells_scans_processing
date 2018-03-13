@@ -63,18 +63,21 @@ def makeTifFromPile(pathToPile):
     num_file = len(list_pileFiles)
     mask_array = np.zeros((num_file, xShape, yShape))
     fileIndex = num_file - 1
+    # Run through the files of the pile
     for pileFile in list_pileFiles:
         with open(pileFile, mode='r', encoding='utf-8') as tifFile:
             tifFile.readline()  # junk line
             tifFile.readline()  # second line is shape of the dcm pile
-            tifFile.readline()  # 3 line is junk data
+            tifFile.readline()  # third line is junk data
+            # Run through rows and columns of the file
             for rowIndex in range(xShape):
                 for colIndex in range(yShape):
                     val = tifFile.read(1)
+                    # Takes only 0 and 1 values (removes spaces)
                     while val != '0' and val != '1':
                         val = tifFile.read(1)
                     mask_array[fileIndex, rowIndex, colIndex] = int(val)
-            fileIndex = fileIndex - 1  # Start with last file in the pile to construct the mask in correct order
+            fileIndex = fileIndex - 1  # Start with last file in the pile to construct the mask in correct order, z axis is inverted
 
     pathToLesion = os.path.abspath(os.path.join(pathToPile, os.pardir))
 
@@ -94,7 +97,8 @@ def getTifMasks(masksPath):
     list_files = [file for file in os.listdir(masksPath) if os.path.isfile(os.path.join(masksPath, file))]
     mask40Name = '40.tif'
     mask25Name = '25.tif'
-    pathToKmeanMask = os.path.join(masksPath, "kmean.tif")
+    pathToKmeanMask = os.path.join(masksPath, "kmean.tif") # The kmean tiff mask is always already computed in our data
+    # Checks if the 40 and 2.5 tiff masks are already computed. If not, they are computed
     if mask40Name in list_files:
         pathTo40Mask = os.path.join(masksPath, mask40Name)
     else:
@@ -113,6 +117,7 @@ def majorityVote(masksPath):
 
     # Import the 3 masks
     (pathToKmeanMask, pathTo40Mask, pathTo25Mask) = getTifMasks(masksPath)
+    # Transposed matrices are taken because the masks axis are reversed compared to dicom images axis
     mkmean = io.imread(pathToKmeanMask).T
     m25 = io.imread(pathTo40Mask).T
     m40 = io.imread(pathTo25Mask).T

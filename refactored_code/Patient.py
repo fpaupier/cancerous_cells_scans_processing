@@ -94,7 +94,7 @@ def dcmToSimpleITK(dcmDirectory):
 
 def convertToSUV(dcmDirectory, sITKImage):
     '''Return a new simple ITK image where the voxels have been converted to SUV.
-    Convert the voxels data from a simple ITK image to SUV, based on the SUV factor found (or computed if not) in the
+    Converts the voxels data from a simple ITK image to SUV, based on the SUV factor found (or computed if not) in the
     matching dicom slices from the dcmDirectory. The dicom slices and input simple ITK image are not modified.
 
     Warning 1: This function assumes all the patient DCM tags used below are defined and set to their correct value.
@@ -122,6 +122,7 @@ def convertToSUV(dcmDirectory, sITKImage):
     units = refDicomSlice[0x00541001].value.lower()
     unitIsNotBqml = "bqml" not in units
 
+    # Philips machines have specific tags
     if manufacturerIsPhilips and unitIsNotBqml:
         suvFactor = float(refDicomSlice[0x70531000].value)
 
@@ -139,6 +140,7 @@ def convertToSUV(dcmDirectory, sITKImage):
             deltaMinute = 60 + deltaMinute
             deltaHour = deltaHour - 1
 
+        # Computing of the suvFactor from bqml
         decayFactor = np.exp(-np.log(2) * ((60 * deltaHour) + deltaMinute) / 109.8)
 
         radioNuclideTotalDose = float(refDicomSlice[0x00540016].value[0][0x00181074].value)
