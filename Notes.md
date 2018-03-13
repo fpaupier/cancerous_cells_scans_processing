@@ -1,49 +1,50 @@
-### RÈunion du 29 dÈcembre 2018 avec Thomas
-La rÈunion a permis d'affiner les spÈcifications pour le pipeline ‡ dÈployer.
-En entrÈe on fournit un dossier de donnÈes patients avec l'architecture suivante : (que l'on retrouve dans le jeu de donnÈes fourni par Thomas)
-ï	Un dossier de donnÈes contenant des dossiers patients sous forme xxx-xxx (x Ètant un digit entre 0 et 9)
-ï	Dans chaque dossier patient on retrouve toujours la mÍme architecture : un dossier dcm contenant la pile de dicom et un ou plusieurs dossiers contenant les masques notÈs l1, l2, etc, associÈs ‡ chaque lÈsion du patient. 
-ï	Dans chaque dossier de lÈsion, on retrouve trois masques : le kmean sous forme de .tif, un dossier pour le masque 2.5 (pile de masque) et un dossier pour le masque 40 (pile de masque) NB: ces deux derniers (2.5 et 40) peuvent Ítre sous forme de .tiff et non en pile si ils ont ÈtÈ corrigÈs (axe z inversÈ et ajout de couches dans la pile).
-Le vendredi 29 janvier aprËs-midi, nous prÈsentons ‡ Thomas un pipe qui permet de traiter un jeu de plusieurs donnÈes patients avec pour output une structure qui associe ‡ chaque lÈsions d'un patient les caractÈristiques extraites de pyradiomics.
-Informations supplÈmentaires pour la mise en place du pipeline :
--> Pour chaque lÈsion d'un patient, on forme un masque par la mÈthode du vote majoritaire ‡ partir des 3 masques : 2.5, 40 et kmean. (MÈthode du vote majoritaire seulement dans un premier temps, pas de STAPLE). Nous nous sommes inspirÈs du code .py de Thomas pour le vote majoritaire.
--> Le masque rÈsultant du vote majoritaire est fourni, avec la pile de dicom du patient correspondant, en entrÈe ‡ pyradiomics pour extraire les features.
--> On oublie dans un premier temps la technique de crop (rÈduction de dimension) qui Ètait rÈalisÈ dans les scripts fiji : on va ici fournir les piles entiËres.
--> L'output devra Ítre une structure de donnÈes permettant d'extraire facilement les caractÈristiques obtenues par pyradiomics pour chaque lÈsion de chaque patient.
-Une fois ce pipeline fonctionnel et validÈ par Thomas, nous organiserons une rÈunion avec Diana pour attaquer la partie machine learning.
+### R√©union du 29 d√©cembre 2018 avec Thomas
+La r√©union a permis d'affiner les sp√©cifications pour le pipeline √† d√©ployer.
+En entr√©e on fournit un dossier de donn√©es patients avec l'architecture suivante : (que l'on retrouve dans le jeu de donn√©es fourni par Thomas)
+-	Un dossier de donn√©es contenant des dossiers patients sous forme xxx-xxx (x √©tant un digit entre 0 et 9)
+-	Dans chaque dossier patient on retrouve toujours la m√™me architecture : un dossier dcm contenant la pile de dicom et un ou plusieurs dossiers contenant les masques not√©s l1, l2, etc, associ√©s √† chaque l√©sion du patient. 
+-	Dans chaque dossier de l√©sion, on retrouve trois masques : le kmean sous forme de .tif, un dossier pour le masque 2.5 (pile de masque) et un dossier pour le masque 40 (pile de masque) NB: ces deux derniers (2.5 et 40) peuvent √™tre sous forme de .tiff et non en pile si ils ont √©t√© corrig√©s (axe z invers√© et ajout de couches dans la pile).
+Le vendredi 29 janvier apr√®s-midi, nous pr√©sentons √† Thomas un pipe qui permet de traiter un jeu de plusieurs donn√©es patients avec pour output une structure qui associe √† chaque l√©sions d'un patient les caract√©ristiques extraites de pyradiomics.
+Informations suppl√©mentaires pour la mise en place du pipeline :
+- Pour chaque l√©sion d'un patient, on forme un masque par la m√©thode du vote majoritaire √† partir des 3 masques : 2.5, 40 et kmean. (M√©thode du vote majoritaire seulement dans un premier temps, pas de STAPLE). Nous nous sommes inspir√©s du code .py de Thomas pour le vote majoritaire.
+- Le masque r√©sultant du vote majoritaire est fourni, avec la pile de dicom du patient correspondant, en entr√©e √† pyradiomics pour extraire les features.
+- On oublie dans un premier temps la technique de crop (r√©duction de dimension) qui √©tait r√©alis√© dans les scripts fiji : on va ici fournir les piles enti√®res.
+- L'output devra √™tre une structure de donn√©es permettant d'extraire facilement les caract√©ristiques obtenues par pyradiomics pour chaque l√©sion de chaque patient.
+Une fois ce pipeline fonctionnel et valid√© par Thomas, nous organiserons une r√©union avec Diana pour attaquer la partie machine learning.
 
 ---------------------------
-### RÈunion du mercredi 24 janvier 2018 avec Thomas
-Objectif : Validation du pipe de prÈ-traitements des donnÈes patients pour l'obtention de caractÈristiques des lÈsions.
-ProblËme pour faire tourner le script sur notre PC portable.
-Information supplÈmentaire : les piles de DCM doivent Ítre prÈ-traitÈes pour pouvoir Ítre en unitÈ SUV/Bequerel standardisÈe.
+### R√©union du mercredi 24 janvier 2018 avec Thomas
+Objectif : Validation du pipe de pr√©-traitements des donn√©es patients pour l'obtention de caract√©ristiques des l√©sions.
+Probl√®me pour faire tourner le script sur notre PC portable.
+Information suppl√©mentaire : les piles de DCM doivent √™tre pr√©-trait√©es pour pouvoir √™tre en unit√© SUV/Bequerel standardis√©e.
 
 
 ---------------------------
-### RÈunion du lundi 29 janvier 2018 avec Diana et Thomas
+### R√©union du lundi 29 janvier 2018 avec Diana et Thomas
 Objectifs
-#1 PrÈsentation du pipe fonctionnel de prÈ-traitement
-#2 SÈlection des features ‡ extraire pour comparaison de rÈsultats
-#3 RÈflÈchir au choix du modËle de machine learning
---- RÈsumÈ
-Points d'intÈrÍts
-- Pipe de prÈ-traitement
-Effectuer la conversion, par patient et pour chacune des slices dicom, dans l'unitÈ standardisÈe en rÈcupÈrant la valeur liÈe ‡ la bonne balise dans les slices (rÈfÈrences des balises dans le code Fiji de Thomas).
-PrÈ-traitement scalable mais penser ‡ exporter le code en .py pour contourner des limitations de ressources des notebooks lorsque jeu de donnÈes en situation rÈelle (>100Go)
-- Extraction de paramËtres
-Extraire le fichier de configuration au format yaml utilisÈ pour initialiser l'extracteur de pyradiomics et l'envoyer ‡ Thomas pour valider le choix des paramËtres d'extractions. (e.g. le bin width doit Ítre ‡ 0.3)
-- Choix du modËle d'apprentissage
-Les labels qui seront utilisÈs dans l'apprentissage sont stockÈs dans un tableur contenant le temps au bout duquel un patient a rechutÈ.
-D'un point de vue clinique, une classification binaire "patient a rechutÈ" / "patient n'a pas rechutÈ" n'a pas de sens car les patients atteints de cette maladie rechutent dans la majeure partie des cas. Un modËle de SVM binaire n'est pas pertinent.
+#1 Pr√©sentation du pipe fonctionnel de pr√©-traitement
+#2 S√©lection des features √† extraire pour comparaison de r√©sultats
+#3 R√©fl√©chir au choix du mod√®le de machine learning
+--- R√©sum√©
+Points d'int√©r√™ts
+- Pipe de pr√©-traitement
+Effectuer la conversion, par patient et pour chacune des slices dicom, dans l'unit√© standardis√©e en r√©cup√©rant la valeur li√©e √† la bonne balise dans les slices (r√©f√©rences des balises dans le code Fiji de Thomas).
+Pr√©-traitement scalable mais penser √† exporter le code en .py pour contourner des limitations de ressources des notebooks lorsque jeu de donn√©es en situation r√©elle (>100Go)
+- Extraction de param√®tres
+Extraire le fichier de configuration au format yaml utilis√© pour initialiser l'extracteur de pyradiomics et l'envoyer √† Thomas pour valider le choix des param√®tres d'extractions. (e.g. le bin width doit √™tre √† 0.3)
+- Choix du mod√®le d'apprentissage
+Les labels qui seront utilis√©s dans l'apprentissage sont stock√©s dans un tableur contenant le temps au bout duquel un patient a rechut√©.
+D'un point de vue clinique, une classification binaire "patient a rechut√©" / "patient n'a pas rechut√©" n'a pas de sens car les patients atteints de cette maladie rechutent dans la majeure partie des cas. Un mod√®le de SVM binaire n'est pas pertinent.
 Envisager l'approche random forest et lire le papier de 2008 RANDOM SURVIVAL FORESTS 1 By Hemant Ishwaran, Udaya B. Kogalur, Eugene H. Blackstone and Michael S. Lauer et se renseigner sur le code python existant.
---- Prochaines Ètapes
-ï	RÈcupÈrer le jeu de donnÈes au CHU auprËs de Thomas (RDV jeudi 01/02 aprËs-midi, horaire ‡ dÈfinir)
-ï	ImplÈmenter la standardisation des donnÈes dans le pipe de prÈ-traitement
-ï	Envoyer le fichier de configuration d'extraction de pyradiomics ‡ Thomas
-ï	Valider les valeurs des features sur le sample des 3 patients 
-ï	Lire le papier random forest, rechercher un code Python Èquivalent et designer un code python pouvant traiter des batchs de patients labelisÈs (le label níest pas pris en compte actuellement dans le pipe --> pourrait simplement Ítre un attribut de la class Patient)
 
-Les features ‡ extraire pour comparer avec les donnÈes de Thomas sont les suivantes :
+Prochaines √©tapes
+-	R√©cup√©rer le jeu de donn√©es au CHU aupr√®s de Thomas (RDV jeudi 01/02 apr√®s-midi, horaire √† d√©finir)
+-	Impl√©menter la standardisation des donn√©es dans le pipe de pr√©-traitement
+-	Envoyer le fichier de configuration d'extraction de pyradiomics √† Thomas
+-	Valider les valeurs des features sur le sample des 3 patients 
+-	Lire le papier random forest, rechercher un code Python √©quivalent et designer un code python pouvant traiter des batchs de patients labelis√©s (le label n‚Äôest pas pris en compte actuellement dans le pipe --> pourrait simplement √™tre un attribut de la class Patient)
+
+Les features √† extraire pour comparer avec les donn√©es de Thomas sont les suivantes :
 - EntropyGLCM
 - HomogeneityGLCM
 - SUVmax
@@ -58,27 +59,27 @@ Les features ‡ extraire pour comparer avec les donnÈes de Thomas sont les suivan
 - ZP
 
 ---------------------------
-### 5 fÈvrier 2018
+### 5 f√©vrier 2018
 - instancier un extracteur depuis un fichier params.yaml
-- regarder les features demandÈes par Thomas et comparer les dÈfinitions mathÈmatiques avec celles de pyradiomics.
-- dÈcomposer le code en une partie extraction de features et un partie machine learning
-- dÈcomposer le pipe en plusieurs scripts .py pour un code plus modulaire
+- regarder les features demand√©es par Thomas et comparer les d√©finitions math√©matiques avec celles de pyradiomics.
+- d√©composer le code en une partie extraction de features et un partie machine learning
+- d√©composer le pipe en plusieurs scripts .py pour un code plus modulaire
 - code pour convertir la pile de dcm en suv.
 
 ---------------------------
-### RÈunion du 7 fÈvrier 2018 avec Thomas
-RÈcupÈration des donnÈes
-- Faire attention aux masques dÈj‡ construit 25.tif et 40.tif --> ils sont de la forme numÈrique 0 et 255 (seulement les deux valeurs extrÍmes) - en gros ils ne sont pas au format binaire - il faut les remettre en binaire pour Èviter les problËmes lors du calcul du masque par mÈthode vote majoritaire.
----- Lexique du fichier csv dont on extrait les features par lÈsion et par patient :
-- endpointPFS ->  1 si patient a rechutÈ, 0 síil ne rechute pas
-- time to PFS : temps en jours au cours duquel le patient a rechutÈ. Pour les patients qui n'ont pas rechutÈ, cette date correspond aux derniËres nouvelles
-Attention, pour faire la comparaison entre les valeurs de rÈfÈrence des features fournies par Thomas et celles calculÈes par pyradiomics, se baser sur le masque 40 uniquement.
-Ne pas prendre en compte la feature TLG dans un premier temps. GLCM validÈ.
-Prendre ZP avec prÈcaution (pas la mÍme dÈfinition dans pyradiomics que celle adoptÈe par Thomas dans son calcul de features).
+### R√©union du 7 f√©vrier 2018 avec Thomas
+R√©cup√©ration des donn√©es
+- Faire attention aux masques d√©j√† construit 25.tif et 40.tif --> ils sont de la forme num√©rique 0 et 255 (seulement les deux valeurs extr√™mes) - en gros ils ne sont pas au format binaire - il faut les remettre en binaire pour √©viter les probl√®mes lors du calcul du masque par m√©thode vote majoritaire.
+---- Lexique du fichier csv dont on extrait les features par l√©sion et par patient :
+- endpointPFS ->  1 si patient a rechut√©, 0 s‚Äôil ne rechute pas
+- time to PFS : temps en jours au cours duquel le patient a rechut√©. Pour les patients qui n'ont pas rechut√©, cette date correspond aux derni√®res nouvelles
+Attention, pour faire la comparaison entre les valeurs de r√©f√©rence des features fournies par Thomas et celles calcul√©es par pyradiomics, se baser sur le masque 40 uniquement.
+Ne pas prendre en compte la feature TLG dans un premier temps. GLCM valid√©.
+Prendre ZP avec pr√©caution (pas la m√™me d√©finition dans pyradiomics que celle adopt√©e par Thomas dans son calcul de features).
 
 
 
---
+---------------------------
 ### Note concernant la conversion des images Dicom et simple ITK
-La fonction combine_slices de dicom_numpy applique le rescale slope / rescale intercept síils sont prÈsents dans les tags de l'image. Cf doc http://dicom-numpy.readthedocs.io/en/latest/index.html?highlight=combine%20slice
+La fonction combine_slices de dicom_numpy applique le rescale slope / rescale intercept s‚Äôils sont pr√©sents dans les tags de l'image. Cf doc http://dicom-numpy.readthedocs.io/en/latest/index.html?highlight=combine%20slice
 The image array dtype will be preserved, unless any of the DICOM images contain either the Rescale Slope or the Rescale Intercept attributes. If either of these attributes are present, they will be applied to each slice individually.
