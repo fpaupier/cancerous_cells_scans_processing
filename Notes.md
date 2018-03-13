@@ -26,7 +26,7 @@ Objectifs
 2. Sélection des features à extraire pour comparaison de résultats
 3. Réfléchir au choix du modèle de machine learning
 
-Résumé points d'intérêts
+Résumé des points d'intérêt
 - Pipe de pré-traitement
 Effectuer la conversion, par patient et pour chacune des slices dicom, dans l'unité standardisée en récupérant la valeur liée à la bonne balise dans les slices (références des balises dans le code Fiji de Thomas).
 Pré-traitement scalable mais penser à exporter le code en .py pour contourner des limitations de ressources des notebooks lorsque jeu de données en situation réelle (>100Go)
