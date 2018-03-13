@@ -35,7 +35,7 @@ def run_extraction_pipe(PATH_TO_DATA, PATH_TO_FEATURES_CSV, PATH_TO_EXTRACTION_P
     '''Pipe function takes the path to the standardized patients dataset and the path to the csv containing the
     extracted features. If no CSV path is provided a CSV file will be created in the parent directory of the patient
     data set.
-    Warning : If a CSV with the same name already exists it will be written over'''
+    Warning : If a CSV with the same name already exists it will be overwritten'''
 
     print("Patients data are loaded from : %s \nFeatures values will be written at: %s"
           % (PATH_TO_DATA, PATH_TO_FEATURES_CSV))
