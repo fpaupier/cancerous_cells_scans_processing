@@ -27,8 +27,8 @@ import os
 import pandas as pd
 from radiomics import featureextractor
 
-from refactored_code.Lesion import Lesion
-from refactored_code.Patient import Patient
+from Lesion import Lesion
+from Patient import Patient
 
 
 def run_extraction_pipe(PATH_TO_DATA, PATH_TO_FEATURES_CSV, PATH_TO_EXTRACTION_PARAMS):
@@ -82,13 +82,3 @@ def convert_patients_list_to_dataFrame(list_patients):
             list_series.append(lesion.dict_features)
     patients_dataFrame = pd.DataFrame(list_series)
     return patients_dataFrame
-
-
-if __name__ == '__main__':
-    # TO DO :
-    # Add command line argument to load the path to data and path to csv and path to extraction params
-    # such as --path_to_data --path_to_csv --path_to_extract-params
-    PATH_TO_DATA = "/Users/pops/Documents/ecn/projet/MYELOME/data/"
-    PATH_TO_FEATURES_CSV = "/Users/pops/Documents/ecn/projet/MYELOME/extracted_features.csv"
-    PATH_TO_EXTRACTION_PARAMS = "/Users/pops/Documents/ecn/projet/petml/code/extractionParams.yaml"
-    run_extraction_pipe(PATH_TO_DATA, PATH_TO_FEATURES_CSV, PATH_TO_EXTRACTION_PARAMS)

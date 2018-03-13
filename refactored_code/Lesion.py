@@ -124,13 +124,19 @@ def majorityVote(masksPath):
     # Dimensions
     imageDims = mkmean.shape
 
+    # TODO: For some patients the masks provided have wrong dimensions. In such a case only the kmean (which is supposed to
+    # have the same dimension as the image is outputted as the resulting mask. This is purely arbitrary and shal be
+    # change in favor of a more robust solution.
+    masksAreSameSize = mkmean.shape == m25.shape == m40.shape
+
     # Initialize resulting matrix
     mMajority = np.zeros(imageDims)
-
-    sum_mask = m40 + m25 + mkmean
-    sum_mask = np.divide(sum_mask, nbMethods)
-    mMajority[sum_mask >= thresh] = 1  # Vectorized method
-
+    if masksAreSameSize:
+        sum_mask = m40 + m25 + mkmean
+        sum_mask = np.divide(sum_mask, nbMethods)
+        mMajority[sum_mask >= thresh] = 1  # Vectorized method
+    else:
+        mMajority[mkmean >= 1] = 1
     sITK_mask = sitk.GetImageFromArray(mMajority)
 
     majorityTiffPath = os.path.join(masksPath, "majority.tif")
