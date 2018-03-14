@@ -1,5 +1,5 @@
 # This is an example of a parameters file
-# It is written according to the YAML-convention (www.yaml.org) and is checked by the code for consistency.
+# It is written according to the YAML-convention (www.yaml.org) and is checked by the deprecated_code for consistency.
 # Three types of parameters are possible and reflected in the structure of the document:
 #
 # Parameter category:

@@ -16,12 +16,25 @@ The goal of this project is to develop machine learning tools (*e.g.* SVMs or ra
 
 ### Steps
 
-1. Implement a pre-processing pipeline to extract the features from the patients' scans
-2. Try different machine learning algorithms to compare prediction of estimated survival time against ground truth
+1. Implement a pre-processing pipeline to extract the features from the patients' scans [ongoing]
+2. Try different machine learning algorithms to compare prediction of estimated survival time against ground truth [To Do]
 
 
-Current step is step 1. 
 To run the tests units, cd to the petml directory and run pytest.
+
+---
+
+## Directory organization
+The project is currently divided into two code section : 
+
+1. The *refactored_code* folder containing the last version of our extraction pipe and the associated lesion and patient class.
+A few tests units are implemented (not exhaustive) to check for the global sanity of the code. Use the code in this folder 
+to compute features from a patients data set.
+
+2. The old, deprecated, un-tested and buggy jupyter notebooks used to process the data are stored in the *deprecated_code* directory. 
+They are not removed yet because they sometimes provide some insights on the dicom tags in a patient scan. 
+
+---
 
 ## Setting up a virtual environment
 *Guidelines adapted from the virtual env installation how-to for [TensorFlow](https://www.tensorflow.org/install/install_mac)*

@@ -6,7 +6,7 @@ from PIL import Image
 from PIL import ImageSequence
 import numpy.ma as ma
 
-# Ce code est destine aux etudes cliniques dont les segmentations ont ete faites par les methodes 40%, adaptative, nestle et Kmean
+# Ce deprecated_code est destine aux etudes cliniques dont les segmentations ont ete faites par les methodes 40%, adaptative, nestle et Kmean
 
 # Fonction : Vote Majoritaire
 

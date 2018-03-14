@@ -7,7 +7,7 @@ from PIL import ImageSequence
 import numpy.ma as ma
 import SimpleITK as sitk
 
-# Ce code est destine aux etudes cliniques dont les segmentations ont ete faites par les methodes 40%, adaptative, nestle et Kmean
+# Ce deprecated_code est destine aux etudes cliniques dont les segmentations ont ete faites par les methodes 40%, adaptative, nestle et Kmean
 
 # Fonction : STAPLE
 
