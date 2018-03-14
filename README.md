@@ -67,3 +67,18 @@ $ source ./bin/activate.csh  # If using csh or tcsh
   ```
   Where *requirements.txt* is the text file provided in the project containing the python package and version needed to run
   the scrips. 
+  
+ 7. Installing pyradiomics. [Pyradiomics](http://pyradiomics.readthedocs.io/en/latest/)  is a python package used to extract features and cannot be installed simply with
+ pip install. It has to be build from source. For an up to date installation procedure check [Pyradiomics Installation guide](http://pyradiomics.readthedocs.io/en/latest/installation.html)
+ Issue the following command line to clone the pyradiomics repo from github :
+ ```
+ (targetDirectory)$ git clone git://github.com/Radiomics/pyradiomics
+ ```
+ 
+ 8. Go to the downloaded pyradiomics folder:
+ ```
+ (targetDirectory)$ cd pyradiomics
+ (targetDirectory)$ python -m pip install -r requirements.txt
+ (targetDirectory)$ python setup.py install
+ ```
+
