@@ -24,8 +24,7 @@ Current step is step 1.
 To run the tests units, cd to the petml directory and run pytest.
 
 ## Setting up a virtual environment
-*Guidelines adapted from the virtual env installation how-to for [TensorFlow](https://www.tensorflow.org/install/install_mac)
-*
+*Guidelines adapted from the virtual env installation how-to for [TensorFlow](https://www.tensorflow.org/install/install_mac)*
 
 We recommend the Virtualenv installation. Virtualenv is a virtual Python environment isolated from other Python development,
 incapable of interfering with or being affected by other Python programs on the same machine. During the Virtualenv installation
@@ -47,6 +46,7 @@ incapable of interfering with or being affected by other Python programs on the 
  $ virtualenv --system-site-packages -p python3 targetDirectory # for Python 3.n
  ```
  where targetDirectory identifies the top of the Virtualenv tree. Our instructions assume that targetDirectory is ~/medicalpy, like *medical python* but you may choose any directory.
+ 
  4. Activate the Virtualenv environment by issuing one of the following commands:
  ```
 $ cd targetDirectory
