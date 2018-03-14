@@ -60,19 +60,20 @@ def setSliceUnitToSUV(pathToDcmSlice):
 
 
 def multiplySlice(scalar, pathToDcmSlice):
-    '''Take a scalar value and the absolute path of a dcm slice.
+    '''WARNING : Deprecated function. This function is no longer used in the extraction pipe and it's expected behavior
+    is not sure to be verified. To delete.
+    Take a scalar value and the absolute path of a dcm slice.
     Multiply all pixels in the slice per the scalar value and save the slice under the same slice name.
     Warning : saving erase the original data for the new multiplied ones.'''
 
-    dcmSlice = dicom.read_file(pathToDcmSlice)
+    dcmSlice = pydicom.dcmread(pathToDcmSlice)
 
     for n, val in enumerate(dcmSlice.pixel_array.flat):
         dcmSlice.pixel_array.flat[n] = scalar * dcmSlice.pixel_array.flat[n]
 
-    ### Warning : passing to string may change the value of the voxels.
+    # Warning: passing to string may change the value of the voxels.
     # To debug : try printing the values of a voxel, and its dtype, before and after the multiplication
     # and before / after the tostring() method (pretty sure this is buggy part)
-    ###
     dcmSlice.PixelData = dcmSlice.pixel_array.tostring()
     dcmSlice.save_as(pathToDcmSlice)
 
