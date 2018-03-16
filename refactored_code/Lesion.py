@@ -78,7 +78,7 @@ def makeTifFromPile(pathToPile):
                         val = tifFile.read(1)
                     mask_array[fileIndex, rowIndex, colIndex] = int(val)
             fileIndex = fileIndex - 1  # Start with last file in the pile to construct the mask in correct order, z axis is inverted
-
+    
     pathToLesion = os.path.abspath(os.path.join(pathToPile, os.pardir))
 
     pathToTifMask = os.path.join(pathToLesion, '_non-standard-mask.tif') # In case not 2.5 or 40 mask (non nominal path)
@@ -119,8 +119,8 @@ def majorityVote(masksPath):
     (pathToKmeanMask, pathTo40Mask, pathTo25Mask) = getTifMasks(masksPath)
     # Transposed matrices are taken because the masks axis are reversed compared to dicom images axis
     mkmean = io.imread(pathToKmeanMask).T
-    m25 = io.imread(pathTo40Mask).T
-    m40 = io.imread(pathTo25Mask).T
+    m25 = io.imread(pathTo25Mask).T
+    m40 = io.imread(pathTo40Mask).T
 
     # Parameters
     thresh = 0.33  # threshold value for accepting a voxel as belonging in the resulting majority vote mask
@@ -137,11 +137,13 @@ def majorityVote(masksPath):
     # Initialize resulting matrix
     mMajority = np.zeros(imageDims)
     if masksAreSameSize:
-        sum_mask = m40 + m25 + mkmean
-        sum_mask = np.divide(sum_mask, nbMethods)
-        mMajority[sum_mask >= thresh] = 1  # Vectorized method
+#        sum_mask = m40 + m25 + mkmean
+#        sum_mask = np.divide(sum_mask, nbMethods)
+#        mMajority[sum_mask >= thresh] = 1  # Vectorized method
+        mMajority = m40 #pour comparer les features avec celles de Thomas
     else:
         mMajority[mkmean >= 1] = 1
+    
     sITK_mask = sitk.GetImageFromArray(mMajority)
 
     majorityTiffPath = os.path.join(masksPath, "majority.tif")
