@@ -26,6 +26,7 @@ import os
 
 import pandas as pd
 from radiomics import featureextractor
+import radiomics
 
 from Lesion import Lesion
 from Patient import Patient
@@ -60,14 +61,45 @@ def extract_features(PATH_TO_EXTRACTION_PARAMS, lesion, image):
     '''Extract the features specified in the .yaml parameter file. Check radiomics extraction parameter for further
      information about extraction parameters. Extracted features are recorded in the dict_features of the
      lesion object'''
-    extractor = featureextractor.RadiomicsFeaturesExtractor(PATH_TO_EXTRACTION_PARAMS)
-    features = extractor.computeFeatures(image, lesion.mask, imageTypeName='original')
+#    extractor = featureextractor.RadiomicsFeaturesExtractor(PATH_TO_EXTRACTION_PARAMS)
+#    features = extractor.computeFeatures(image, lesion.mask, imageTypeName='original')
     # we specify imageTypeName='original' because the patient image has not been filtered or other kind of pre-process
     # beforehand.
+    
+    # Extraction of wanted features ono by one
+    # First order features
+    extractor = radiomics.firstorder.RadiomicsFirstOrder(image, lesion.mask)
+    entropy = extractor.getEntropyFeatureValue()
+    maximum = extractor.getMaximumFeatureValue()
+    
+    # GLCM features
+    extractor = radiomics.glcm.RadiomicsGLCM(image, lesion.mask)
+    homogenity = extractor.getIdFeatureValue()
+    dissimilarity = extractor.getDifferenceAverageFeatureValue()
+    
+    # GLRLM features
+    extractor = radiomics.glrlm.RadiomicsGLRLM(image, lesion.mask)
+    HGLRE = extractor.getHighGrayLevelRunEmphasisFeatureValue()
+    
+    # GLSZM features
+    extractor = radiomics.glszm.RadiomicsGLSZM(image, lesion.mask)
+    ZLNU = extractor.getSizeZoneNonUniformityFeatureValue()
+    SZHGE = extractor.getSmallAreaHighGrayLevelEmphasisFeatureValue()
+    ZP = extractor.getZonePercentageFeatureValue()
+    
+    # Add features in the lesion dictionary
+    lesion.dict_features['entropy'] = entropy
+    lesion.dict_features['maximum'] = maximum
+    lesion.dict_features['homogenity'] = homogenity
+    lesion.dict_features['dissimilarity'] = dissimilarity
+    lesion.dict_features['HGLRE'] = HGLRE
+    lesion.dict_features['ZLNU'] = ZLNU
+    lesion.dict_features['SZHGE'] = SZHGE
+    lesion.dict_features['ZP'] = ZP
 
-    # Add the features specified in the parameter file in the lesion dictionary
-    for key in features:
-        lesion.dict_features[key] = features[key]
+#    # Add the features specified in the parameter file in the lesion dictionary
+#    for key in features:
+#        lesion.dict_features[key] = features[key]
 
 
 def convert_patients_list_to_dataFrame(list_patients):
