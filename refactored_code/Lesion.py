@@ -140,7 +140,7 @@ def majorityVote(masksPath):
 #        sum_mask = m40 + m25 + mkmean
 #        sum_mask = np.divide(sum_mask, nbMethods)
 #        mMajority[sum_mask >= thresh] = 1  # Vectorized method
-        mMajority = m40 #pour comparer les features avec celles de Thomas
+        mMajority = m40  # pour comparer les features avec celles de Thomas
     else:
         mMajority[mkmean >= 1] = 1
     

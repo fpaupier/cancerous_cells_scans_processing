@@ -60,11 +60,11 @@ def extract_features(PATH_TO_EXTRACTION_PARAMS, lesion, image):
     '''Extract the features specified in the .yaml parameter file. Check radiomics extraction parameter for further
      information about extraction parameters. Extracted features are recorded in the dict_features of the
      lesion object'''
+
     extractor = featureextractor.RadiomicsFeaturesExtractor(PATH_TO_EXTRACTION_PARAMS)
     features = extractor.computeFeatures(image, lesion.mask, imageTypeName='original')
     # we specify imageTypeName='original' because the patient image has not been filtered or other kind of pre-process
     # beforehand.
-
     # Add the features specified in the parameter file in the lesion dictionary
     for key in features:
         lesion.dict_features[key] = features[key]
