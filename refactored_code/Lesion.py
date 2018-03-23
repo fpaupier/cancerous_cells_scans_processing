@@ -30,7 +30,7 @@ class Lesion:
         ''' Provide ref number as string "lx", where x is the number of the lesion, masksPath is the path to the folder
         containing the masks '''
         self.ref = ref
-        self.mask = majorityVote(masksPath)
+        self.mask = getMajorityVoteMask(masksPath)
         self.dict_features = collections.OrderedDict()  # Expected features are in the .yaml parameter file
 
 
@@ -111,23 +111,23 @@ def getTifMasks(masksPath):
 
 
 def setToSize(mask, imageDims):
-    '''Set an array mask to the adapted size imageDims. This function is usefull when the number of slices of the mask 
+    '''Set an array mask to the adapted size imageDims. This function is useful when the number of slices of the mask
     is not the same as the number of slices in the Dicom image'''
     
-    i=0
+    i = 0
     while imageDims[2] < mask.shape[2]:  # The third dimension is the one concerned
         # Alternatively remove the first or the last slice until the size is correct
-        if i%2 == 0:
-            mask = mask[:,:,1:mask.shape[2]]
+        if i % 2 == 0:
+            mask = mask[:, :, 1:mask.shape[2]]
             i = i+1
         else:
-            mask = mask[:,:,0:mask.shape[2]-1]
+            mask = mask[:, :, 0:mask.shape[2]-1]
             i = i+1
     return mask
                 
 
 
-def majorityVote(masksPath):
+def getMajorityVoteMask(masksPath):
     '''Compute the average mask based on the majority vote method for a lesion. Masks used to compute resulting masks 
     are Kmean mask, 2.5 mask and 40% mask. The masks should be in the same path. The resulting tif mask is saved under 
     the masksPath directory under the name 'majority.tif' '''
@@ -146,20 +146,20 @@ def majorityVote(masksPath):
     # Dimensions
     imageDims = mkmean.shape
 
-    # TODO: For some patients the masks provided have wrong dimensions. In such a case only the kmean (which is supposed to
-    # have the same dimension as the image is outputted as the resulting mask. This is purely arbitrary and shall be
+    # TODO: For some patients the masks provided have wrong dimensions. In such a case only the 40mask (which is supposed to
+    # provide the correct features once combined with the patient scan. This is purely arbitrary and shall be
     # changed in favor of a more robust solution.
     masksAreSameSize = mkmean.shape == m25.shape == m40.shape
 
     # Initialize resulting matrix
     mMajority = np.zeros(imageDims)
     if masksAreSameSize:
-#        sum_mask = m40 + m25 + mkmean
-#        sum_mask = np.divide(sum_mask, nbMethods)
-#        mMajority[sum_mask >= thresh] = 1  # Vectorized method
-        mMajority = m40  # pour comparer les features avec celles de Thomas
+#       sum_mask = m40 + m25 + mkmean
+#       sum_mask = np.divide(sum_mask, nbMethods)
+#       mMajority[sum_mask >= thresh] = 1  # Vectorized method
+        mMajority = m40  # to compare with Thomas' features
     else:
-#        mMajority[mkmean >= 1] = 1
+#       mMajority[mkmean >= 1] = 1
         mMajority = setToSize(m40, imageDims)
     
     sITK_mask = sitk.GetImageFromArray(mMajority)

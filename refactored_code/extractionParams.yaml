@@ -21,13 +21,13 @@
 
 #-------------------------------
 #### Warging missing features :
-# - TLG (Total Lesion Glycolysis)  - la moyenne des voxels dans la segmentation multipliée par le volume
+# - TLG (Total Lesion Glycolysis)  - the mean of voxels within ROI * volume
 # - Nb Voxels
-# - ZP (zone percentage) - pas la même définition que Thomas
+# - ZP (zone percentage) - not exactly same definition as Thomas
 #-------------------------------
 
 setting:
-  binWidth: 3 # TODO Check value with Thomas
+  binWidth: 0,3
   label: 1
   interpolator: 'sitkBSpline' # This is an enumerated value, here None is not allowed
   resampledPixelSpacing: # This disables resampling, as it is interpreted as None, to enable it, specify spacing in x, y, z as [x, y , z]
@@ -51,5 +51,4 @@ featureClass:
   glszm:
     - 'SizeZoneNonUniformity' # SZN = ZLNU
     - 'SmallAreaHighGrayLevelEmphasis' # SAHGLE = SZHGE
-    # /!\ Pas même définition que Thomas pour ZP  - comparer valeurs
-    - 'ZonePercentage'
+    - 'ZonePercentage'  # /!\  Watch out not same definition as Thomas

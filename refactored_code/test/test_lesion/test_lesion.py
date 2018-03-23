@@ -85,7 +85,7 @@ class TestLesion(object):
         os.remove(pathTo25Mask)
         os.remove(pathTo40Mask)
 
-    def test_majorityVote(self):
+    def test_getMajorityVoteMask(self):
         pass
 
     def test_Patient(selfself):
