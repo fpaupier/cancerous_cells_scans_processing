@@ -88,7 +88,7 @@ def dcmToSimpleITK(dcmDirectory):
             if '.dcm' in dcmFile.lower():
                 list_dcmFiles.append(os.path.join(directory, dcmFile))
     dcmImage = [pydicom.dcmread(dcmSliceFile) for dcmSliceFile in list_dcmFiles]
-    voxel_ndarray, ijk_to_xyz = dicom_numpy.combine_slices(dcmImage)
+    voxel_ndarray, ijk_to_xyz = dicom_numpy.combine_slices(dcmImage)    
     sITK_image = sitk.GetImageFromArray(voxel_ndarray)
     return (sITK_image)
 
@@ -152,7 +152,7 @@ def convertToSUV(dcmDirectory, sITKImage):
 
     # All slices are multiplied per the same suv factor. We assume it's a constant for a patient
     voxels = sitk.GetArrayFromImage(sITKImage).astype('float32')
-    SUVVoxels = suvFactor * voxels
+    SUVVoxels = suvFactor * voxels    
     SUVsITKImage = sitk.GetImageFromArray(SUVVoxels)
 
     return SUVsITKImage
@@ -182,4 +182,5 @@ def initializePatientImage(dcmDirectory):
         print("   Patient's voxels value are not in SUV.  Converting the patient's voxels in SUV ...")
         image3D = convertToSUV(dcmDirectory, rescaledImage)
         print("   Conversion to SUV done")
-        return image3D
+#        return image3D
+        return rescaledImage

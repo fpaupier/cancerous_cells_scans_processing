@@ -110,6 +110,23 @@ def getTifMasks(masksPath):
     return(pathToKmeanMask, pathTo40Mask, pathTo25Mask)
 
 
+def setToSize(mask, imageDims):
+    '''Set an array mask to the adapted size imageDims. This function is usefull when the number of slices of the mask 
+    is not the same as the number of slices in the Dicom image'''
+    
+    i=0
+    while imageDims[2] < mask.shape[2]:  # The third dimension is the one concerned
+        # Alternatively remove the first or the last slice until the size is correct
+        if i%2 == 0:
+            mask = mask[:,:,1:mask.shape[2]]
+            i = i+1
+        else:
+            mask = mask[:,:,0:mask.shape[2]-1]
+            i = i+1
+    return mask
+                
+
+
 def majorityVote(masksPath):
     '''Compute the average mask based on the majority vote method for a lesion. Masks used to compute resulting masks 
     are Kmean mask, 2.5 mask and 40% mask. The masks should be in the same path. The resulting tif mask is saved under 
@@ -130,8 +147,8 @@ def majorityVote(masksPath):
     imageDims = mkmean.shape
 
     # TODO: For some patients the masks provided have wrong dimensions. In such a case only the kmean (which is supposed to
-    # have the same dimension as the image is outputted as the resulting mask. This is purely arbitrary and shal be
-    # change in favor of a more robust solution.
+    # have the same dimension as the image is outputted as the resulting mask. This is purely arbitrary and shall be
+    # changed in favor of a more robust solution.
     masksAreSameSize = mkmean.shape == m25.shape == m40.shape
 
     # Initialize resulting matrix
@@ -142,7 +159,8 @@ def majorityVote(masksPath):
 #        mMajority[sum_mask >= thresh] = 1  # Vectorized method
         mMajority = m40  # pour comparer les features avec celles de Thomas
     else:
-        mMajority[mkmean >= 1] = 1
+#        mMajority[mkmean >= 1] = 1
+        mMajority = setToSize(m40, imageDims)
     
     sITK_mask = sitk.GetImageFromArray(mMajority)
 
