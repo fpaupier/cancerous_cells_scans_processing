@@ -1,5 +1,7 @@
 # Decision making tool for PET scans
 
+Warning, this project is no longer supported by its initial developers. 
+
 ## Context
 
 PET imaging is a valuable tool to diagnose and track patients with multiple myelomas (advanced cancers with metastasis).
@@ -16,7 +18,7 @@ The goal of this project is to develop machine learning tools (*e.g.* SVMs or ra
 
 ### Steps
 
-1. Implement a pre-processing pipeline to extract the features from the patients' scans [ongoing]
+1. Implement a pre-processing pipeline to extract the features from the patients' scans [Done]
 2. Try different machine learning algorithms to compare prediction of estimated survival time against ground truth [To Do]
 
 
@@ -25,15 +27,15 @@ To run the tests units, cd to the petml directory and run pytest.
 ---
 
 ## Directory organization
-The project is currently divided into two code section : 
+The Notes.md files contains notes from reunions with the project member to ease the understanding of the code.
 
-1. The *refactored_code* folder containing the last version of our extraction pipe and the associated lesion and patient class.
-A few tests units are implemented (not exhaustive) to check for the global sanity of the code. Use the code in this folder 
-to compute features from a patients data set.
+The project is currently divided into two  section : 
 
-2. The old, deprecated, un-tested and buggy jupyter notebooks used to process the data are stored in the *deprecated_code* directory. 
-They are not removed yet because they sometimes provide some insights on the dicom tags in a patient scan. 
+1. The *code* folder contains the extraction pipe and the associated lesion and patient class.
+Use the code in this folder to compute features from a patients data set.
+A few tests units are implemented (not exhaustive) to check for the global sanity of the code. 
 
+2. The *docs* folder contains several publications used to motivate the choice of extraction features.
 ---
 
 ## Setting up a virtual environment

@@ -3,9 +3,9 @@ import sys
 import numpy as np
 from skimage.external import tifffile
 
-from refactored_code.Lesion import getWords
-from refactored_code.Lesion import makeTifFromPile
-from refactored_code.Lesion import getTifMasks
+from code.Lesion import getWords
+from code.Lesion import makeTifFromPile
+from code.Lesion import getTifMasks
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sample_pile_folder = os.path.join(dir_path, 'sample_pile')

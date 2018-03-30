@@ -1,5 +1,4 @@
-.pytest_cache
-refactored_code/.pytest_cache
-refactored_code/test/test_feature_extractor/.pytest_cache
-refactored_code/test/test_feature_extractor/sample_csv_features.csv
-deprecated_code/.ipynb_checkpoints
+.pytest_cache/
+code/.pytest_cache/
+code/test/test_feature_extractor/.pytest_cache/
+code/test/test_feature_extractor/sample_csv_features.csv

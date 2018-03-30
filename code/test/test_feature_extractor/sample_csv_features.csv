@@ -1,0 +1,4 @@
+,Index,original_firstorder_Entropy,original_firstorder_Maximum,original_glcm_Id,original_glcm_DifferenceAverage,original_glrlm_HighGrayLevelRunEmphasis,original_glszm_SizeZoneNonUniformity,original_glszm_SmallAreaHighGrayLevelEmphasis,original_glszm_ZonePercentage
+0,001-060 l2,-0.0,0.734051525592804,1.0,0.0,1.0,1.0,0.00014515894904920887,0.012048192771084338
+1,017-012 l2,-0.0,3.76101016998291,1.0,0.0,1.0,1.25,0.30301207901942534,0.0125
+2,017-012 l1,-0.0,2.4658925533294678,1.0,0.0,1.0,1.3333333333333333,0.3550467398311985,0.009523809523809525

@@ -44,7 +44,7 @@ featureClass:
     - 'Entropy' # Entropy GLCM
     - 'Maximum' # SUV max
   glcm:
-    - 'Id' # HOmogenityGLCM
+    - 'Id' # HomogenityGLCM
     - 'DifferenceAverage' # DissimilarityGLCM
   glrlm:
     - 'HighGrayLevelRunEmphasis' # HGLRE

@@ -1,12 +1,12 @@
 import os
 import pandas as pd
 
-from refactored_code.feature_extractor import run_extraction_pipe
-from refactored_code.feature_extractor import extract_features
-from refactored_code.feature_extractor import convert_patients_list_to_dataFrame
+from code.feature_extractor import run_extraction_pipe
+from code.feature_extractor import extract_features
+from code.feature_extractor import convert_patients_list_to_dataFrame
 
-from refactored_code.Patient import Patient
-from refactored_code.Lesion import Lesion
+from code.Patient import Patient
+from code.Lesion import Lesion
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sample_data_folder = os.path.join(dir_path, 'sample_data')
