@@ -1,6 +1,7 @@
 # Decision making tool for PET scans
 
 Warning, this project is no longer supported by its initial developers. 
+To run the tests units, cd to the petml directory and run pytest.
 
 ## Context
 
@@ -13,16 +14,8 @@ The goal of this project is to develop machine learning tools (*e.g.* SVMs or ra
 
 ## Tasks
 
-- Bibliographic study
-- Implement PET scans processing algorithms in Python to predict survival time
-
-### Steps
-
 1. Implement a pre-processing pipeline to extract the features from the patients' scans [Done]
-2. Try different machine learning algorithms to compare prediction of estimated survival time against ground truth [To Do]
-
-
-To run the tests units, cd to the petml directory and run pytest.
+2. Implement random survival forest to predict survival time from extracted features [To Do]
 
 ---
 
