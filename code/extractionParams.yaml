@@ -27,7 +27,7 @@
 #-------------------------------
 
 setting:
-  binWidth: 0,3
+  binWidth: 25 # FIXME binwidth value to check
   label: 1
   interpolator: 'sitkBSpline' # This is an enumerated value, here None is not allowed
   resampledPixelSpacing: # This disables resampling, as it is interpreted as None, to enable it, specify spacing in x, y, z as [x, y , z]
