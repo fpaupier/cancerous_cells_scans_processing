@@ -124,8 +124,12 @@ def setToSize(mask, imageDims):
             mask = mask[:, :, 0:mask.shape[2]-1]
             i = i+1
     return mask
-                
 
+def check_Values(mask):
+    '''put all masks at 0/1 instead of 0/255'''
+    indice=np.where(mask!=0.0)
+    mask[indice]=1.0
+    return mask
 
 def getMajorityVoteMask(masksPath):
     '''Compute the average mask based on the majority vote method for a lesion. Masks used to compute resulting masks 
@@ -138,6 +142,10 @@ def getMajorityVoteMask(masksPath):
     mkmean = io.imread(pathToKmeanMask).T
     m25 = io.imread(pathTo25Mask).T
     m40 = io.imread(pathTo40Mask).T
+
+    m25 = check_Values(m25)
+    m40 = check_Values(m40)
+    mkmean= check_Values(mkmean)
 
     # Parameters
     thresh = 0.33  # threshold value for accepting a voxel as belonging in the resulting majority vote mask
@@ -161,10 +169,10 @@ def getMajorityVoteMask(masksPath):
     else:
 #       mMajority[mkmean >= 1] = 1
         mMajority = setToSize(m40, imageDims)
-    
+    mMajority_tran=mMajority.T #used for the tiff save
     sITK_mask = sitk.GetImageFromArray(mMajority)
 
     majorityTiffPath = os.path.join(masksPath, "majority.tif")
-    tifffile.imsave(majorityTiffPath, mMajority)
+    tifffile.imsave(majorityTiffPath, mMajority_tran)
 
     return sITK_mask
