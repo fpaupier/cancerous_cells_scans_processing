@@ -110,11 +110,18 @@ def makeTifFromPile(pathToPile):
     pathToTifMask = os.path.join(pathToLesion, '_non-standard-mask.tif') # In case not 2.5 or 40 mask (non nominal path)
     if '2.5' in pathToPile:
         pathToTifMask = os.path.join(pathToLesion, '25.tif')
+        pathToTifMask2 = os.path.join(pathToLesion, '25_255.tif')
+
     if '40' in pathToPile:
         pathToTifMask = os.path.join(pathToLesion, '40.tif')
+        pathToTifMask2 = os.path.join(pathToLesion, '40_255.tif')
+
+    mask_array2=label_choice(mask_array,255)
 
     # Warning : check why the size (in bytes) of the saved mask is up to 10 times the size of the 2.5 or 40 masks
     tifffile.imsave(pathToTifMask, mask_array)
+    tifffile.imsave(pathToTifMask2, mask_array2)
+
     return pathToTifMask
 
 
@@ -188,13 +195,15 @@ def getMajorityVoteMask(masksPath):
     # Initialize resulting matrix
     mMajority = np.zeros(imageDims)
     if masksAreSameSize:
-#       sum_mask = m40 + m25 + mkmean
-#       sum_mask = np.divide(sum_mask, nbMethods)
-#       mMajority[sum_mask >= thresh] = 1  # Vectorized method
-        mMajority = m40  # to compare with Thomas' features
+       sum_mask = m40 + m25 + mkmean
+       sum_mask = np.divide(sum_mask, nbMethods)
+       mMajority[sum_mask >= thresh] = 1.0  # Vectorized method
+#       mMajority = m40  # to compare with Thomas' features
+       
     else:
-#       mMajority[mkmean >= 1] = 1
-        mMajority = setToSize(m40, imageDims)
+       mMajority=mkmean
+       print(" Be careful, there is a size issue !")
+        
     mMajority_tran=mMajority.T #used for the tiff save
     sITK_mask = sitk.GetImageFromArray(mMajority)
     
@@ -202,7 +211,7 @@ def getMajorityVoteMask(masksPath):
     tifffile.imsave(majorityTiffPath, mMajority_tran)
 
     mMajority255=label_choice(mMajority_tran,255) #use to register with 255 label and permit to open with ImageJ
-    majorityTiffPath2 = os.path.join(masksPath, "majority255.tif")
+    majorityTiffPath2 = os.path.join(masksPath, "majority_255.tif")
     tifffile.imsave(majorityTiffPath2, mMajority255)
     
     return sITK_mask
