@@ -151,10 +151,10 @@ def setToSize(mask, imageDims):
             i = i+1
     return mask
 
-def check_Values(mask):
-    '''put all masks at 0/1 instead of 0/255'''
+def label_choice(mask,label):
+    '''choise if label is 255 or 1'''
     indice=np.where(mask!=0.0)
-    mask[indice]=1.0
+    mask[indice]=label
     return mask
 
 def getMajorityVoteMask(masksPath):
@@ -169,9 +169,9 @@ def getMajorityVoteMask(masksPath):
     m25 = io.imread(pathTo25Mask).T
     m40 = io.imread(pathTo40Mask).T
 
-    m25 = check_Values(m25)
-    m40 = check_Values(m40)
-    mkmean= check_Values(mkmean)
+    m25 = label_choice(m25,1.0)
+    m40 = label_choice(m40,1.0)
+    mkmean= label_choice(mkmean,1.0)
 
     # Parameters
     thresh = 0.33  # threshold value for accepting a voxel as belonging in the resulting majority vote mask
@@ -197,8 +197,12 @@ def getMajorityVoteMask(masksPath):
         mMajority = setToSize(m40, imageDims)
     mMajority_tran=mMajority.T #used for the tiff save
     sITK_mask = sitk.GetImageFromArray(mMajority)
-
+    
     majorityTiffPath = os.path.join(masksPath, "majority.tif")
     tifffile.imsave(majorityTiffPath, mMajority_tran)
 
+    mMajority255=label_choice(mMajority_tran,255) #use to register with 255 label and permit to open with ImageJ
+    majorityTiffPath2 = os.path.join(masksPath, "majority255.tif")
+    tifffile.imsave(majorityTiffPath2, mMajority255)
+    
     return sITK_mask
