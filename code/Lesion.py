@@ -42,6 +42,25 @@ def getWords(text):
     '''From a text input as a string, get the words separated by a space and return it as a list of strings'''
     return re.compile('\w+').findall(text)
 
+def change_name(list_pileFiles):
+    """change names of files to permit to open the files in the good order"""
+    for k in range(len(list_pileFiles)):
+        if list_pileFiles[k][-2]=='_':
+            new=list(list_pileFiles[k][0:-1])
+            new.append('0')
+            new.append('0')
+            new.append(list_pileFiles[k][-1])
+            new_name = "".join(new)
+            os.rename(list_pileFiles[k],new_name)    
+    
+        if list_pileFiles[k][-3]=='_':
+            new=list(list_pileFiles[k][0:-2])
+            new.append('0')
+            new.append(list_pileFiles[k][-2])
+            new.append(list_pileFiles[k][-1])
+    
+            new_name = "".join(new) 
+            os.rename(list_pileFiles[k],new_name)  
 
 def makeTifFromPile(pathToPile):
     '''Takes an absolute path containing a pile of masks, compute the resulting .tif mask and
@@ -51,7 +70,14 @@ def makeTifFromPile(pathToPile):
         for fileName in fileNames:
             if not fileName.startswith('.'):
                 list_pileFiles.append(os.path.join(dirpath, fileName))
-
+    change_name(list_pileFiles)
+    
+    list_pileFiles = []
+    for dirpath, dirnames, fileNames in os.walk(pathToPile):
+        for fileName in fileNames:
+            if not fileName.startswith('.'):
+                list_pileFiles.append(os.path.join(dirpath, fileName))
+                
     first_file = list_pileFiles[0]
     # get the shape of the image
     with open(first_file, mode='r', encoding='utf-8') as tifFile:
@@ -62,7 +88,7 @@ def makeTifFromPile(pathToPile):
 
     num_file = len(list_pileFiles)
     mask_array = np.zeros((num_file, xShape, yShape))
-    fileIndex = num_file - 1
+    fileIndex = 0
     # Run through the files of the pile
     for pileFile in list_pileFiles:
         with open(pileFile, mode='r', encoding='utf-8') as tifFile:
@@ -77,8 +103,8 @@ def makeTifFromPile(pathToPile):
                     while val != '0' and val != '1':
                         val = tifFile.read(1)
                     mask_array[fileIndex, rowIndex, colIndex] = int(val)
-            fileIndex = fileIndex - 1  # Start with last file in the pile to construct the mask in correct order, z axis is inverted
-    
+            fileIndex = fileIndex + 1 
+            
     pathToLesion = os.path.abspath(os.path.join(pathToPile, os.pardir))
 
     pathToTifMask = os.path.join(pathToLesion, '_non-standard-mask.tif') # In case not 2.5 or 40 mask (non nominal path)
