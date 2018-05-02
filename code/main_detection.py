@@ -25,7 +25,7 @@ from sklearn.metrics import roc_auc_score
 # Choix patient test ##########################################################
 PATH_TO_DATA = 'C:/Users/ludiv/Documents/Aide_au_diag/Data/Patients/'
 
-def test_choice(PATH_TO_DATA):
+def test_choice(PATH_TO_DATA): #to choice which patient between five will be use for test and others (4) will be use for training
     print ('Test choice')
     list_ref = []
     for patient in os.listdir(PATH_TO_DATA):
@@ -35,20 +35,20 @@ def test_choice(PATH_TO_DATA):
     patient_train=list_ref
     del patient_train[i]
     print('        choose patient : ',patient_test)
-    return patient_train, patient_test
+    return patient_train, patient_test #give patients train list and patient test list
 
-def padding(image,k):
+def padding(image,k): #padding to permit to take in count edges
     pad_image=np.pad(image,((0,2*k),(0,2*k),(0,2*k)),mode = 'symmetric')
     return pad_image
 
 
-def calcul_ratio(patch):
+def calcul_ratio(patch): #calculation of the ratio of positive patchs in a list
     nb_pos=len(np.where(patch!=0))
     nb_neg=len(np.where(patch==0))
     ratio=nb_pos/(nb_pos+nb_neg)
     return ratio
 
-def patch_creation(x,y,z,k,image):
+def patch_creation(x,y,z,k,image): #to create a patch from the patient image
     patch = np.ones((2*k+1,2*k+1,2*k+1))
     for xp in range(patch.shape[0]):
         for yp in range(patch.shape[1]):
@@ -62,7 +62,7 @@ def patch_creation(x,y,z,k,image):
 #prendre aléatoirement un certain nombre de patchs dans cette liste et le reste dans le corps mais en dehors de ces patchs
 
 def positive_patch(mask,k,pourcent_ratio,pd_mask): #taille patch = 2k+1
-    '''donne liste des patchs positifs du mask'''
+    '''donne liste des patchs positifs du mask 3D'''
     print('     Looking for positives patchs ...')
     indice=np.where(mask!=0)
     min_x=indice[0].min()
@@ -216,7 +216,7 @@ def features_calculation(patch_size,liste_patch):
             
     return valeurs_features
 
-def csv_creation(valeurs,name):
+def csv_creation(valeurs,name):  #create csv file with extracted features
     with open(name, 'w', newline='') as csvfile:
         fieldnames = ['Mean','Min','Median','Entropy','Maximum','homogenity','dissimilarity','HGLRE','ZLNU','SZHGE','ZP']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -343,8 +343,8 @@ if __name__ == "__main__":
 
     # pour chaque patch positif de l'image du patient test
         # pour chaque pixel, ajouter 1 à tableau_pixel_pos au niveau de la coord du pixel
+    
     print(' ......................... Pixel lesion determination .........')
-
 #    tableau_pixel_pos =np.zeros(image_patient_test.shape)
 #    tableau_pixel_pos = padding(tableau_pixel_pos,k)
 #    for i,patch in enumerate(liste_patch_test):
