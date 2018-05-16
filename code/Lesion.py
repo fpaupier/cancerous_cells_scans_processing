@@ -110,18 +110,12 @@ def makeTifFromPile(pathToPile):
     pathToTifMask = os.path.join(pathToLesion, '_non-standard-mask.tif') # In case not 2.5 or 40 mask (non nominal path)
     if '2.5' in pathToPile:
         pathToTifMask = os.path.join(pathToLesion, '25.tif')
-        pathToTifMask2 = os.path.join(pathToLesion, '25_255.tif')
 
     if '40' in pathToPile:
         pathToTifMask = os.path.join(pathToLesion, '40.tif')
-        pathToTifMask2 = os.path.join(pathToLesion, '40_255.tif')
 
-    mask_array2=label_choice(mask_array,255)
-
-    # Warning : check why the size (in bytes) of the saved mask is up to 10 times the size of the 2.5 or 40 masks
+    mask_array=mask_array.astype(np.uint8)
     tifffile.imsave(pathToTifMask, mask_array)
-    tifffile.imsave(pathToTifMask2, mask_array2)
-
     return pathToTifMask
 
 
@@ -180,6 +174,14 @@ def getMajorityVoteMask(masksPath):
     m40 = label_choice(m40,1.0)
     mkmean= label_choice(mkmean,1.0)
 
+    form=0
+    if m25.dtype=='uint8' or m40.dtype == 'uint8':
+        form=1
+        
+    m25=m25.astype(np.uint8)
+    mkmean=mkmean.astype(np.uint8)
+    m40=m40.astype(np.uint8)
+    
     # Parameters
     thresh = 0.33  # threshold value for accepting a voxel as belonging in the resulting majority vote mask
     nbMethods = 3  # Number of methods used (40%, 2.5 and kmean)
@@ -203,15 +205,17 @@ def getMajorityVoteMask(masksPath):
     else:
        mMajority=mkmean
        print(" Be careful, there is a size issue !")
-        
+       print('kmean ',mkmean.shape)
+       print('25 ',m25.shape)
+       print('40 ',m40.shape)
+       
+    if form ==1 :
+        mMajority = mMajority[:,:,::-1]
+       
     mMajority_tran=mMajority.T #used for the tiff save
     sITK_mask = sitk.GetImageFromArray(mMajority)
     
     majorityTiffPath = os.path.join(masksPath, "majority.tif")
     tifffile.imsave(majorityTiffPath, mMajority_tran)
-
-    mMajority255=label_choice(mMajority_tran,255) #use to register with 255 label and permit to open with ImageJ
-    majorityTiffPath2 = os.path.join(masksPath, "majority_255.tif")
-    tifffile.imsave(majorityTiffPath2, mMajority255)
     
     return sITK_mask
