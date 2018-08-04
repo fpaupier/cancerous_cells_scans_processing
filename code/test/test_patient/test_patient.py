@@ -7,12 +7,12 @@ import math
 
 from pydicom.data import get_testdata_files
 
-from code.Patient import Patient
-from code.Patient import isSliceUnitSUV
-from code.Patient import setSliceUnitToSUV
-from code.Patient import dcmToSimpleITK
-from code.Patient import convertToSUV
-from code.Patient import initializePatientImage
+from code.model.Patient import Patient
+from code.model.Patient import isSliceUnitSUV
+from code.model.Patient import setSliceUnitToSUV
+from code.model.Patient import dcmToSimpleITK
+from code.model.Patient import convertToSUV
+from code.model.Patient import initializePatientImage
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sample_dicom_folder = os.path.join(dir_path, 'sample_dicom')

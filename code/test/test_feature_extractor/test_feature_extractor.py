@@ -5,8 +5,8 @@ from code.feature_extractor import run_extraction_pipe
 from code.feature_extractor import extract_features
 from code.feature_extractor import convert_patients_list_to_dataFrame
 
-from code.Patient import Patient
-from code.Lesion import Lesion
+from code.model.Patient import Patient
+from code.model.Lesion import Lesion
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sample_data_folder = os.path.join(dir_path, 'sample_data')

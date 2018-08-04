@@ -1,11 +1,10 @@
 import os
-import sys
 import numpy as np
 from skimage.external import tifffile
 
-from code.Lesion import getWords
-from code.Lesion import makeTifFromPile
-from code.Lesion import getTifMasks
+from code.model.Lesion import getWords
+from code.model.Lesion import makeTifFromPile
+from code.model.Lesion import getTifMasks
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sample_pile_folder = os.path.join(dir_path, 'sample_pile')

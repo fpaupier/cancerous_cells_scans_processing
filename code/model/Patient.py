@@ -38,8 +38,8 @@ class Patient:
 # --------------------------
 
 def isSliceUnitSUV(dcmSlice):
-    '''Take a dcm slice in input and returns true if the voxels are expressed in SUV - Standardized uptake value.
-    Return false otherwise.'''
+    """Take a dcm slice in input and returns true if the voxels are expressed in SUV - Standardized uptake value.
+    Return false otherwise."""
 
     # 00541001 corresponds to the tag index of the voxel unit in the dcm file
     units = dcmSlice[0x00541001].value.lower()
@@ -52,19 +52,19 @@ def isSliceUnitSUV(dcmSlice):
 
 
 def setSliceUnitToSUV(pathToDcmSlice):
-    '''Take an absolute path to a dcm file and change its dicom tag related to units [0054,1001] to 'suv' and save the
-     dcm.'''
+    """Take an absolute path to a dcm file and change its dicom tag related to units [0054,1001] to 'suv' and save the
+     dcm."""
     dcmSlice = pydicom.dcmread(pathToDcmSlice)
     dcmSlice[0x00541001].value = 'suv'
     dcmSlice.save_as(pathToDcmSlice)
 
 
 def multiplySlice(scalar, pathToDcmSlice):
-    '''WARNING : Deprecated function. This function is no longer used in the extraction pipe and it's expected behavior
+    """WARNING : Deprecated function. This function is no longer used in the extraction pipe and it's expected behavior
     is not sure to be verified. To delete.
     Take a scalar value and the absolute path of a dcm slice.
     Multiply all pixels in the slice per the scalar value and save the slice under the same slice name.
-    Warning : saving erase the original data for the new multiplied ones.'''
+    Warning : saving erase the original data for the new multiplied ones."""
 
     dcmSlice = pydicom.dcmread(pathToDcmSlice)
 
@@ -79,9 +79,9 @@ def multiplySlice(scalar, pathToDcmSlice):
 
 
 def dcmToSimpleITK(dcmDirectory):
-    '''Return a simple ITK image from a pile of dcm files. The returned sITK image has been rescaled based on the
+    """Return a simple ITK image from a pile of dcm files. The returned sITK image has been rescaled based on the
     value of the rescale slope on the dicom tag. Array-like data of the 3D image can be obtained with the
-    GetArrayFromImage() method'''
+    GetArrayFromImage() method"""
     list_dcmFiles = []
     for directory, subDirectory, list_dcmFileNames in os.walk(dcmDirectory):
         for dcmFile in list_dcmFileNames:
@@ -94,7 +94,7 @@ def dcmToSimpleITK(dcmDirectory):
 
 
 def convertToSUV(dcmDirectory, sITKImage):
-    '''Return a new simple ITK image where the voxels have been converted to SUV.
+    """Return a new simple ITK image where the voxels have been converted to SUV.
     Converts the voxels data from a simple ITK image to SUV, based on the SUV factor found (or computed if not) in the
     matching dicom slices from the dcmDirectory. The dicom slices and input simple ITK image are not modified.
 
@@ -103,7 +103,7 @@ def convertToSUV(dcmDirectory, sITKImage):
     to the range of EANM guidelines.
     Warning 3: This function assumes all the slices are in the same unit (e.g. all slices' voxels are in SUV).
     Warning 4: simple ITK image passed as input are assumed to have been rescaled properly with the matching rescale
-    slope found in the dicom tag of the matching dicom file.'''
+    slope found in the dicom tag of the matching dicom file."""
 
 
     # Get the pile of dcm slices

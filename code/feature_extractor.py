@@ -25,18 +25,20 @@
 import os
 
 import pandas as pd
-from radiomics import featureextractor
 import radiomics
 
-from Lesion import Lesion
-from Patient import Patient
+from code.model.Lesion import Lesion
+from code.model.Patient import Patient
 
 
 def run_extraction_pipe(PATH_TO_DATA, PATH_TO_FEATURES_CSV, PATH_TO_EXTRACTION_PARAMS):
-    '''Pipe function takes the path to the standardized patients dataset and the path to the csv containing the
+    """
+    Pipe function takes the path to the standardized patients dataset and the path to the csv containing the
     extracted features. If no CSV path is provided a CSV file will be created in the parent directory of the patient
     data set.
-    Warning : If a CSV with the same name already exists it will be overwritten'''
+    Warning : If a CSV with the same name already exists it will be overwritten
+
+    """
 
     print("Patients data are loaded from : %s \nFeatures values will be written at: %s"
           % (PATH_TO_DATA, PATH_TO_FEATURES_CSV))
@@ -58,39 +60,38 @@ def run_extraction_pipe(PATH_TO_DATA, PATH_TO_FEATURES_CSV, PATH_TO_EXTRACTION_P
 
 
 def extract_features(PATH_TO_EXTRACTION_PARAMS, lesion, image):
-    '''Extract the features specified in the .yaml parameter file. Check radiomics extraction parameter for further
-     information about extraction parameters. Extracted features are recorded in the dict_features of the
-     lesion object'''
-     
-#    extractor = featureextractor.RadiomicsFeaturesExtractor(PATH_TO_EXTRACTION_PARAMS)
-#    features = extractor.computeFeatures(image, lesion.mask, imageTypeName='original')
-    # we specify imageTypeName='original' because the patient image has not been filtered or other kind of pre-process
-    # beforehand.
+    """
+    Extract the features specified in the .yaml parameter file.
 
-    # # Extraction of wanted features ono by one
-    settings = {'binWidth': 0.3,'interpolator': sitk.sitkBSpline,'resampledPixelSpacing': None,'delta' : 1}
+    Check radiomics extraction parameter for further
+     information about extraction parameters. Extracted features are recorded in the dict_features of the
+     lesion object
+
+    """
+
+    # Extraction of wanted features ono by one
+    settings = {'binWidth': 0.3, 'interpolator': sitk.sitkBSpline, 'resampledPixelSpacing': None, 'delta': 1}
 
     # First order features
-    extractor = radiomics.firstorder.RadiomicsFirstOrder(image, lesion.mask,**settings)
+    extractor = radiomics.firstorder.RadiomicsFirstOrder(image, lesion.mask, **settings)
 
     maximum = extractor.getMaximumFeatureValue()
 
-     # GLCM features
-    extractor = radiomics.glcm.RadiomicsGLCM(image, lesion.mask,**settings)
+    # GLCM features
+    extractor = radiomics.glcm.RadiomicsGLCM(image, lesion.mask, **settings)
     homogenity = extractor.getIdFeatureValue()
     dissimilarity = extractor.getDifferenceAverageFeatureValue()
     entropy = extractor.getSumEntropyFeatureValue()
     # GLRLM features
-    extractor = radiomics.glrlm.RadiomicsGLRLM(image, lesion.mask,**settings)
+    extractor = radiomics.glrlm.RadiomicsGLRLM(image, lesion.mask, **settings)
     HGLRE = extractor.getHighGrayLevelRunEmphasisFeatureValue()
 
     # GLSZM features
-    extractor = radiomics.glszm.RadiomicsGLSZM(image, lesion.mask,**settings)
-#    print( extractor.P_glszm)
+    extractor = radiomics.glszm.RadiomicsGLSZM(image, lesion.mask, **settings)
     ZLNU = extractor.getSizeZoneNonUniformityFeatureValue()
     SZHGE = extractor.getSmallAreaHighGrayLevelEmphasisFeatureValue()
     ZP = extractor.getZonePercentageFeatureValue()
-    
+
     # Add features in the lesion dictionary
     lesion.dict_features['entropy'] = entropy
     lesion.dict_features['homogenity'] = homogenity
@@ -100,15 +101,13 @@ def extract_features(PATH_TO_EXTRACTION_PARAMS, lesion, image):
     lesion.dict_features['SZHGE'] = SZHGE
     lesion.dict_features['ZP'] = ZP
     lesion.dict_features['maximum'] = maximum
-    
-   # Add the features specified in the parameter file in the lesion dictionary
-#    for key in features:
-#       lesion.dict_features[key] = features[key]
 
 
 def convert_patients_list_to_dataFrame(list_patients):
-    '''Take a patient list containing each patients' lesion and associated feature, output a panda data frame.
-     Each row contains the feature extracted from a patient lesion.'''
+    """
+    Take a patient list containing each patients' lesion and associated feature, output a panda data frame.
+    Each row contains the feature extracted from a patient lesion.
+    """
     list_series = []
     for patient in list_patients:
         for lesion in patient.list_lesions:

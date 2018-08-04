@@ -6,7 +6,7 @@
 #   Setting Name: <value>
 #
 # The three parameter categories are:
-# - setting: Setting to use for preprocessing and class specific settings. if no <value> is specified, the value for
+# - setting: Setting to use for pre-processing and class specific settings. if no <value> is specified, the value for
 #   this setting is set to None.
 # - featureClass: Feature class to enable, <value> is list of strings representing enabled features. If no <value> is
 #   specified or <value> is an empty list ('[]'), all features for this class are enabled.
@@ -20,7 +20,7 @@
 
 
 #-------------------------------
-#### Warging missing features :
+#### Warning missing features :
 # - TLG (Total Lesion Glycolysis)  - the mean of voxels within ROI * volume
 # - Nb Voxels
 # - ZP (zone percentage) - not exactly same definition as Thomas
@@ -30,7 +30,7 @@ setting:
   binWidth: 25 # FIXME binwidth value to check
   label: 1
   interpolator: 'sitkBSpline' # This is an enumerated value, here None is not allowed
-  resampledPixelSpacing: # This disables resampling, as it is interpreted as None, to enable it, specify spacing in x, y, z as [x, y , z]
+  resampledPixelSpacing: # This disables re-sampling, as it is interpreted as None, to enable it, specify spacing in x, y, z as [x, y , z]
   weightingNorm: # If no value is specified, it is interpreted as None
 
 
@@ -51,4 +51,4 @@ featureClass:
   glszm:
     - 'SizeZoneNonUniformity' # SZN = ZLNU
     - 'SmallAreaHighGrayLevelEmphasis' # SAHGLE = SZHGE
-    - 'ZonePercentage'  # /!\  Watch out not same definition as Thomas
+    - 'ZonePercentage'  # /!\  Watch out not same definition as Thomas's one

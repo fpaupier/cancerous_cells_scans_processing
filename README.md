@@ -1,26 +1,46 @@
 # Decision making tool for PET scans
 
-Warning, this project is no longer supported by its initial developers. 
-To run the tests units, cd to the petml directory and run pytest.
+## On the use of PET scans in oncology
+_PET_  - Positron-emission tomography is a nuclear medicine functional imaging technique that is used to observe 
+metabolic processes. PET scans are gray-scale images.
 
-## Context
 
-PET imaging is a valuable tool to diagnose and track patients with multiple myelomas (advanced cancers with metastasis).
-PET images show lesions as dark regions.
+PET scans are particularly useful to detect myelomas - _advanced cancers with metastasis._
+Indeed, organs and tissues consuming carbohydrate tend to be dark areas in PET scans. Myelomas are big consumers of
+carbohydrates. Thus, PET scan are a weapon of choice to track myelomas in a patient scan.
 
-## Goal
 
-The goal of this project is to develop machine learning tools (*e.g.* SVMs or random forests) in order to classify lesions and predict the survival time.
+## Goal of the project
 
-## Tasks
+This project aims to provide a code base to extract features from those PET scans.
 
-1. Implement a pre-processing pipeline to extract the features from the patients' scans [Done]
-2. Implement random survival forest to predict survival time from extracted features [To Do]
+First we will extract the feature and compare them with the values of reference papers. Then, we perform a feature selection.
+A second project will use those selected features to train a machine learning algorithm 
+(likely to be a _Random Survival Forest_ as it led to meaningful results in the case of lungs cancer detection).
+
+The end goal of this second project is to classify lesions and predict patient survival time based on their PET scans.
+
+## Library used
+
+We used mainly the [pydicom](https://pydicom.github.io) and [pyradiomics](http://www.radiomics.io) to perform operations
+on our medical data. (pile of gray-scale PET images that can be merged together to build a 3D model of the patient scanned)
+
+## Data structure
+
+For each patient in our data set, data are anonymised.
+
+Per patient we have:
+ - a pile of `.dicom` images.
+ - a set of binary mask to cover the regions without lesions, so we could focus only on the region of interest.
+ (The masks were drawn by professional oncologists)
+ - Some reference features already computed for some regions of interests.
+ - Time of patient's death relative to the date the scan has been taken (_e.g_ deceased 2 years after the last scan was taken)
+
 
 ---
+# Code related info
 
 ## Directory organization
-The Notes.md files contains notes from reunions with the project member to ease the understanding of the code.
 
 The project is currently divided into two  section : 
 
@@ -28,7 +48,9 @@ The project is currently divided into two  section :
 Use the code in this folder to compute features from a patients data set.
 A few tests units are implemented (not exhaustive) to check for the global sanity of the code. 
 
-2. The *docs* folder contains several publications used to motivate the choice of extraction features.
+
+2. The *docs* folder contains several publications used to motivate the choice of extraction features.`
+
 ---
 
 ## Setting up a virtual environment
@@ -89,4 +111,10 @@ $ source ./bin/activate.csh  # If using csh or tcsh
  (targetDirectory)$ python -m pip install -r requirements.txt
  (targetDirectory)$ python setup.py install
  ```
+ 
+ 9. Check installation succeeded by running `pytest`.
 
+
+## Bibliography
+Bibliography is available in the `docs` folder. The different papers available define the features considered and the 
+result one can possibly expect by using them to train a machine learning / pattern detection algorithm.

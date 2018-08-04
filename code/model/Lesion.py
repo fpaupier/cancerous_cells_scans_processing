@@ -39,8 +39,9 @@ class Lesion:
 # --------------------------
 
 def getWords(text):
-    '''From a text input as a string, get the words separated by a space and return it as a list of strings'''
+    """From a text input as a string, get the words separated by a space and return it as a list of strings"""
     return re.compile('\w+').findall(text)
+
 
 def change_name(list_pileFiles):
     """change names of files to permit to open the files in the good order"""
@@ -120,7 +121,7 @@ def makeTifFromPile(pathToPile):
 
 
 def getTifMasks(masksPath):
-    '''Return path toward the KMean, 40 and 2.5 mask respectively in this order'''
+    """Return path toward the KMean, 40 and 2.5 mask respectively in this order"""
     list_files = [file for file in os.listdir(masksPath) if os.path.isfile(os.path.join(masksPath, file))]
     mask40Name = '40.tif'
     mask25Name = '25.tif'
@@ -138,8 +139,8 @@ def getTifMasks(masksPath):
 
 
 def setToSize(mask, imageDims):
-    '''Set an array mask to the adapted size imageDims. This function is useful when the number of slices of the mask
-    is not the same as the number of slices in the Dicom image'''
+    """Set an array mask to the adapted size imageDims. This function is useful when the number of slices of the mask
+    is not the same as the number of slices in the Dicom image"""
     
     i = 0
     while imageDims[2] < mask.shape[2]:  # The third dimension is the one concerned
@@ -159,9 +160,9 @@ def label_choice(mask,label):
     return mask
 
 def getMajorityVoteMask(masksPath):
-    '''Compute the average mask based on the majority vote method for a lesion. Masks used to compute resulting masks 
+    """Compute the average mask based on the majority vote method for a lesion. Masks used to compute resulting masks
     are Kmean mask, 2.5 mask and 40% mask. The masks should be in the same path. The resulting tif mask is saved under 
-    the masksPath directory under the name 'majority.tif' '''
+    the masksPath directory under the name 'majority.tif' """
 
     # Import the 3 masks
     (pathToKmeanMask, pathTo40Mask, pathTo25Mask) = getTifMasks(masksPath)
@@ -200,8 +201,7 @@ def getMajorityVoteMask(masksPath):
        sum_mask = m40 + m25 + mkmean
        sum_mask = np.divide(sum_mask, nbMethods)
        mMajority[sum_mask >= thresh] = 1.0  # Vectorized method
-#       mMajority = m40  # to compare with Thomas' features
-       
+
     else:
        mMajority=mkmean
        print(" Be careful, there is a size issue !")

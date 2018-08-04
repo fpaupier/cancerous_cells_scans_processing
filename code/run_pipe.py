@@ -13,12 +13,12 @@
 import argparse
 from feature_extractor import run_extraction_pipe
 
-PATH_TO_DATA = 'C:/Users/mathi_000/jupyter/Projet/data/'
+PATH_TO_DATA = '/Users/pops/projects/cancerous_cells_scans_processing/data'
+
 
 def main():
-
     parser = argparse.ArgumentParser(
-                        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--data_dir', type=str, default=PATH_TO_DATA,
                         help='Data directory containing patients folder')
     parser.add_argument('--feature_csv', type=str, default='extracted_features.csv',
@@ -27,7 +27,7 @@ def main():
                         help='Path to the extraction parameter files (.yaml file)')
     args = parser.parse_args()
 
-    run_extraction_pipe(args.data_dir, args.feature_csv, args. params)
+    run_extraction_pipe(args.data_dir, args.feature_csv, args.params)
 
 
 if __name__ == "__main__":

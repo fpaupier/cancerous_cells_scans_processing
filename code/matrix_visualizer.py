@@ -21,7 +21,7 @@ I = np.array([[1, 2, 5, 2, 3],
               [1, 3, 5, 5, 2],
               [1, 1, 1, 1, 2],
               [1, 2, 4, 3, 5]
-])
+              ])
 
 # GLC, GLRL and GLSZ matrix are hand written (examples from pyradiomics'doc)
 glcm = np.array([[6, 4, 3, 0, 0],
@@ -30,8 +30,7 @@ glcm = np.array([[6, 4, 3, 0, 0],
                  [0, 1, 1, 0, 0],
                  [0, 3, 2, 0, 2]
 
-])
-
+                 ])
 
 glrlm = np.array([[1, 0, 1, 0, 0],
                   [3, 0, 1, 0, 0],
@@ -39,7 +38,7 @@ glrlm = np.array([[1, 0, 1, 0, 0],
                   [1, 1, 0, 0, 0],
                   [3, 0, 0, 0, 0]
 
-])
+                  ])
 
 glszm = np.array([[0, 0, 0, 1, 0],
                   [1, 0, 0, 0, 1],
@@ -47,19 +46,18 @@ glszm = np.array([[0, 0, 0, 1, 0],
                   [1, 1, 0, 0, 0],
                   [3, 0, 0, 0, 0]
 
-])
+                  ])
 
 #
 # Sample feature calculation : SAGLE from GSLZ matrix
 #
-(nRow,nCol) = glszm.shape
+(nRow, nCol) = glszm.shape
 Nz = nRow * nCol
 sagle_num = 0
 for rowIndex in range(nRow):
     for colIndex in range(nCol):
-        sagle_num = sagle_num + glszm[rowIndex, colIndex]/((1+rowIndex)**2 * (1+colIndex)**2)
+        sagle_num = sagle_num + glszm[rowIndex, colIndex] / ((1 + rowIndex) ** 2 * (1 + colIndex) ** 2)
 print('SAGLE value :  %0.03F' % sagle_num)
-
 
 #
 # Display reference and other matrix of interests

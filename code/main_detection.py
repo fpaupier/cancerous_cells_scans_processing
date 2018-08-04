@@ -8,19 +8,18 @@ import os
 from random import randint
 from skimage import io
 import numpy as np
-from Patient import initializePatientImage
+from code.model.Patient import initializePatientImage
 
 import SimpleITK as sitk 
 
 import radiomics
-from radiomics import featureextractor
 
 from sklearn.ensemble import RandomForestClassifier
 import csv
 import pandas as pd
 
 from sklearn import svm
-from sklearn.metrics import roc_auc_score
+
 #%%
 # Choix patient test ##########################################################
 PATH_TO_DATA = 'C:/Users/ludiv/Documents/Aide_au_diag/Data/Patients/'
