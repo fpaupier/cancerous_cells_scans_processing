@@ -118,3 +118,8 @@ $ source ./bin/activate.csh  # If using csh or tcsh
 ## Bibliography
 Bibliography is available in the `docs` folder. The different papers available define the features considered and the 
 result one can possibly expect by using them to train a machine learning / pattern detection algorithm.
+
+## Notes
+This project was done in the context of my Master Thesis at Centrale Nantes.
+
+This project is no longer updated.
